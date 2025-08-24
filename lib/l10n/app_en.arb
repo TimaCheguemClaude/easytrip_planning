@@ -1,0 +1,89 @@
+{
+  "@@locale": "en",
+  "appTitle": "easytrip",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "loginTitle": "Login",
+  "@loginTitle": {
+    "description": "Login screen title"
+  },
+  "emailHint": "Email",
+  "@emailHint": {
+    "description": "Hint text for email field"
+  },
+  "passwordHint": "Password",
+  "@passwordHint": {
+    "description": "Hint text for password field"
+  },
+  "loginButton": "Login",
+  "@loginButton": {
+    "description": "Text for login button"
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Text for forgot password link"
+  },
+  "noAccount": "Don't have an account?",
+  "@noAccount": {
+    "description": "Text for no account message"
+  },
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Text for sign up link"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+  "changePassword": "Change Password",
+  "@changePassword": {
+    "description": "Change password option"
+  },
+  "changeLanguage": "Change Language",
+  "@changeLanguage": {
+    "description": "Change language option"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy option"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Contact us option"
+  },
+  "deleteAccount": "Delete Account",
+  "@deleteAccount": {
+    "description": "Delete account option"
+  },
+  "deleteAccountConfirmation": "Are you sure you want to delete your account? This action cannot be undone.",
+  "@deleteAccountConfirmation": {
+    "description": "Delete account confirmation message"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "darkTheme": "Dark Theme",
+  "@darkTheme": {
+    "description": "Dark theme toggle label"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "selectLanguage": "Select Language",
+  "@selectLanguage": {
+    "description": "Instruction to select language"
+  },
+  "privacyPolicyTitle": "Privacy Policy",
+  "privacyPolicyForRideShare": "Privacy Policy for easytrip",
+  "privacyPolicyIntro": "At easytrip, accessible from google play store, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by easytrip and how we use it.",
+  "additionalQuestionsText": "If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us.",
+  "policyScope": "This Privacy Policy applies only to our online activities and is valid for visitors to our website with regards to the information that they shared and/or collect in easytrip. This policy is not applicable to any information collected offline or via channels other than this website.",
+  "policyCreationNote": "Our Privacy Policy was created with the help of the Free Privacy Policy Generator."
+}
