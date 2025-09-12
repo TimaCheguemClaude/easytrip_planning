@@ -10,7 +10,7 @@ class CustomButton extends StatelessWidget {
   final bool isOutlined;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.child,
     this.backgroundColor,
@@ -18,7 +18,7 @@ class CustomButton extends StatelessWidget {
     this.borderRadius = 10.0,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
     this.isOutlined = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

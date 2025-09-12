@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginserver {
-  final String baseUrl = "http://173.249.8.175:12010/api";
+  final String baseUrl = "http://localhost:8000";
 
   Future<Map<String, dynamic>> loginUser(User user) async {
     final response = await http.post(

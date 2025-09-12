@@ -7,10 +7,10 @@ class MapView extends StatelessWidget {
   final bool isDark;
 
   const MapView({
-    Key? key,
+    super.key,
     this.initialPosition = const LatLng(51.509364, -0.128928), // Default center (London)
     required this.isDark,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -13,11 +13,6 @@ class LoginRepository {
     try {
       final response = await loginserver.loginUser(user);
 
-      // First, validate basic response structure
-      if (response == null) {
-        throw Exception('No response from server');
-      }
-
       // Create a standardized response structure
       Map<String, dynamic> standardResponse = {
         "data": {},
@@ -66,11 +61,6 @@ class LoginRepository {
     try {
       final response = await loginserver.logoutuser();
 
-      // Validate response
-      if (response == null) {
-        throw Exception('No response from server');
-      }
-
       // Clear stored data
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('token');
@@ -92,11 +82,6 @@ class LoginRepository {
     try {
       final response = await loginserver.registerUser(character);
 
-      // Validate response
-      if (response == null) {
-        throw Exception('No response from server');
-      }
-
       return {
         "data": response['data'] ?? {},
         "success": response['success'] ?? false,
@@ -113,11 +98,6 @@ class LoginRepository {
     try {
       print('Attempting to activate account for user $userId with code $code');
       final response = await loginserver.activateAccount(userId, code);
-
-      // Validate response
-      if (response == null) {
-        throw Exception('No response from server');
-      }
 
       // Check for explicit failure
       if (response['success'] == false) {

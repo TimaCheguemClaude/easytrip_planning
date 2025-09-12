@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:easytrip/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

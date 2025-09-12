@@ -1,5 +1,4 @@
 import 'package:easytrip/presentation/Onboboarding/onboarding_items.dart';
-import 'package:easytrip/presentation/screens/loginscreen.dart';
 import 'package:easytrip/presentation/screens/mainscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,9 +20,9 @@ class _OnboardingViewState extends State<OnboardingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 58, 123, 213),
       bottomSheet: Container(
-        color: Colors.white,
+        color: Color.fromARGB(255, 58, 123, 213),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: isLastPage
             ? getStarted()
@@ -32,6 +31,9 @@ class _OnboardingViewState extends State<OnboardingView> {
                 children: [
                   //Skip Button
                   TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                    ),
                     onPressed: () =>
                         pageController.jumpToPage(controller.items.length - 1),
                     child: const Text("Skip"),
@@ -55,6 +57,9 @@ class _OnboardingViewState extends State<OnboardingView> {
 
                   //Next Button
                   TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                    ),
                     onPressed: () => pageController.nextPage(
                       duration: const Duration(milliseconds: 600),
                       curve: Curves.easeIn,
@@ -87,7 +92,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 const SizedBox(height: 15),
                 Text(
                   controller.items[index].descriptions,
-                  style: const TextStyle(color: Colors.grey, fontSize: 17),
+                  style: const TextStyle(color: Colors.black, fontSize: 17),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -108,7 +113,7 @@ class _OnboardingViewState extends State<OnboardingView> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Colors.blue,
+        color: Color.fromARGB(255, 58, 123, 213),
       ),
       width: MediaQuery.of(context).size.width * .9,
       height: 55,
@@ -122,7 +127,7 @@ class _OnboardingViewState extends State<OnboardingView> {
           if (!mounted) return;
           Navigator.pushReplacement(
             context,
-           // MaterialPageRoute(builder: (context) => LoginScreen()),
+            // MaterialPageRoute(builder: (context) => LoginScreen()),
             MaterialPageRoute(builder: (context) => MainScreen()),
           );
         },

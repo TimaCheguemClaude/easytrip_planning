@@ -43,8 +43,8 @@ class UiProvider extends ChangeNotifier {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF2196F3)),
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        backgroundColor: WidgetStateProperty.all<Color>(Color(0xFF2196F3)),
+        foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
       ),
     ),
     dividerTheme: DividerThemeData(
@@ -84,8 +84,8 @@ class UiProvider extends ChangeNotifier {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF2196F3)),
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        backgroundColor: WidgetStateProperty.all<Color>(Color(0xFF2196F3)),
+        foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
       ),
     ),
     dividerTheme: DividerThemeData(

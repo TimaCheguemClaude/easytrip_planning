@@ -3,23 +3,18 @@ import 'onboarding_info.dart';
 class OnboardingItems {
   List<OnboardingInfo> items = [
     OnboardingInfo(
-        title: "Commande facile",
-        descriptions: "Passez votre commande en quelques clics et laissez-nous nous occuper de la livraison de votre colis.",
-        image: "assets/download.jpg"),
+        title: "Plan Your Trips Easily",
+        descriptions: "Organize your journeys with just a few taps. Create personalized travel plans that fit your budget and preferences.",
+        image: "assets/onboarding.jpeg"),
 
     OnboardingInfo(
-        title: "Suivi en temps réel",
-        descriptions: "Suivez votre colis en temps réel et soyez informé de chaque étape de son acheminement.",
-        image: "assets/download1.jpg"),
-
-   /* OnboardingInfo(
-        title: "Paiement sécurisé",
-        descriptions: "Payez en toute sécurité via mobile money ou carte bancaire pour une expérience sans souci.",
-        image: "assets/onboarding3.gif"),*/
+        title: "Discover New Places",
+        descriptions: "Get recommendations for hotels, restaurants, and activities tailored to your destination and group size.",
+        image: "assets/onboarding1.jpeg"),
 
     OnboardingInfo(
-        title: "Livraison rapide",
-        descriptions: "Nous livrons vos colis rapidement et en toute sécurité, où que vous soyez.",
-        image: "assets/download2.jpg"),
+        title: "Stay on Schedule",
+        descriptions: "Manage your itinerary with our calendar-based planner. Adjust activities anytime and enjoy a stress-free trip.",
+        image: "assets/onboarding2.jpeg"),
   ];
 }

@@ -3,7 +3,7 @@ import 'package:easytrip/l10n/app_localizations.dart';
 import 'package:easytrip/main.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
-  const LanguageSelectionScreen({Key? key}) : super(key: key);
+  const LanguageSelectionScreen({super.key});
 
   @override
   State<LanguageSelectionScreen> createState() =>

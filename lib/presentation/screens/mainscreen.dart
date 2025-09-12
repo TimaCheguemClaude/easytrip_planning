@@ -7,7 +7,7 @@ import 'profilescreen.dart';
 import 'walletscreen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     // const Favscreen(),
-    const Walletscreen(),
+    const Tripscreen(),
     const Offerscreen(),
     const Profilescreen(),
   ];

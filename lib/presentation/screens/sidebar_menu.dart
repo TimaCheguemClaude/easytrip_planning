@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:easytrip/utils/theme.dart';
 
 class SidebarMenu extends StatelessWidget {
-  const SidebarMenu({Key? key}) : super(key: key);
+  const SidebarMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +38,10 @@ class SidebarMenu extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 32,
-                    backgroundColor: Colors.blue.withOpacity(0.2),
+                    backgroundColor: Colors.blue.withOpacity(0.9),
                     child: const CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/avatars/default.png'),
+                      backgroundImage: AssetImage('assets/default.jpg'),
                       // If you don't have this asset, use a default icon:
                       // child: Icon(Icons.person, size: 40, color: Colors.blue),
                     ),

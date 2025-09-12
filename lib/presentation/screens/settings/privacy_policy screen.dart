@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:easytrip/utils/theme.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
-  const PrivacyPolicyScreen({Key? key}) : super(key: key);
+  const PrivacyPolicyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
