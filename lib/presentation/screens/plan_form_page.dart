@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import '../screens/explore_city_page.dart';
-import '../screens/trip_detail_page.dart';
+import '../../data/mock_explore_data.dart';
 import '../../utils/trip_storage.dart';
 
 class PlanFormPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class PlanFormPage extends StatefulWidget {
 
 class _PlanFormPageState extends State<PlanFormPage> {
   final TextEditingController _tripNameController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
+  String? _selectedCity;
   final TextEditingController _budgetController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _crewController = TextEditingController();
@@ -25,9 +25,24 @@ class _PlanFormPageState extends State<PlanFormPage> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
+      // Copy the image to the app's documents directory
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName =
+          'trip_${DateTime.now().millisecondsSinceEpoch}_${picked.name}';
+      final savedImage = await File(
+        picked.path,
+      ).copy('${appDir.path}/$fileName');
       setState(() {
-        _pickedImage = File(picked.path);
+        _pickedImage = savedImage;
       });
+      // Save the new image path to the trip data if trip name is already set
+      if (_tripNameController.text.isNotEmpty) {
+        final trip = await TripStorage.getTrip(_tripNameController.text);
+        if (trip != null) {
+          trip['image'] = savedImage.path;
+          await TripStorage.saveTrip(trip);
+        }
+      }
     }
   }
 
@@ -93,12 +108,17 @@ class _PlanFormPageState extends State<PlanFormPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Store the controller for the city field
-              TextField(
-                controller: _cityController,
+              DropdownButtonFormField<String>(
+                value: _selectedCity,
+                items: MockExploreData.cityCategoryData.keys
+                    .map(
+                      (city) =>
+                          DropdownMenuItem(value: city, child: Text(city)),
+                    )
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedCity = val),
                 decoration: InputDecoration(
                   labelText: 'Where to',
-                  hintStyle: TextStyle(color: Theme.of(context).hintColor),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: inactiveBorderColor),
                     borderRadius: BorderRadius.circular(8),
@@ -235,7 +255,7 @@ class _PlanFormPageState extends State<PlanFormPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     final tripName = _tripNameController.text.trim();
-                    final city = _cityController.text.trim();
+                    final city = _selectedCity ?? '';
                     final budget =
                         double.tryParse(_budgetController.text.trim()) ?? 0.0;
                     final dateRange = _selectedDateRange;
@@ -261,12 +281,7 @@ class _PlanFormPageState extends State<PlanFormPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Trip planned!')),
                       );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TripDetailPage(trip: trip),
-                        ),
-                      );
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

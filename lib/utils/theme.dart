@@ -11,13 +11,25 @@ class UiProvider extends ChangeNotifier {
   final Color primaryBlue = Color(0xFF2196F3);
   final Color primaryLightBlue = Color(0xFF64B5F6);
   final Color primaryDarkBlue = Color(0xFF1976D2);
-  
+
   // Custom dark theme
   final darkTheme = ThemeData(
     primaryColor: Color(0xFF2196F3),
     primaryColorDark: Color(0xFF1976D2),
     brightness: Brightness.dark,
     scaffoldBackgroundColor: Color(0xFF121212),
+    colorScheme: ColorScheme.dark(
+      primary: Color(0xFF2196F3),
+      secondary: Color(0xFF64B5F6),
+      background: Color(0xFF121212),
+      surface: Color(0xFF1E1E1E),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onBackground: Colors.white,
+      onSurface: Colors.white,
+      error: Colors.red,
+      onError: Colors.white,
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: Color(0xFF1976D2),
       foregroundColor: Colors.white,
@@ -37,9 +49,7 @@ class UiProvider extends ChangeNotifier {
     cardTheme: CardThemeData(
       color: Color(0xFF1E1E1E),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -47,10 +57,7 @@ class UiProvider extends ChangeNotifier {
         foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
       ),
     ),
-    dividerTheme: DividerThemeData(
-      color: Colors.grey[800],
-      thickness: 0.5,
-    ),
+    dividerTheme: DividerThemeData(color: Colors.grey[800], thickness: 0.5),
   );
 
   // Custom light theme
@@ -59,6 +66,18 @@ class UiProvider extends ChangeNotifier {
     primaryColorLight: Color(0xFF64B5F6),
     brightness: Brightness.light,
     scaffoldBackgroundColor: Colors.white,
+    colorScheme: ColorScheme.light(
+      primary: Color(0xFF2196F3),
+      secondary: Color(0xFF64B5F6),
+      background: Colors.white,
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onBackground: Colors.black,
+      onSurface: Colors.black,
+      error: Colors.red,
+      onError: Colors.white,
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: Color(0xFF2196F3),
       foregroundColor: Colors.white,
@@ -78,9 +97,7 @@ class UiProvider extends ChangeNotifier {
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -88,10 +105,7 @@ class UiProvider extends ChangeNotifier {
         foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
       ),
     ),
-    dividerTheme: DividerThemeData(
-      color: Colors.grey[300],
-      thickness: 0.5,
-    ),
+    dividerTheme: DividerThemeData(color: Colors.grey[300], thickness: 0.5),
   );
 
   // Dark mode toggle action

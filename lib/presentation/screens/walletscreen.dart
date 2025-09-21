@@ -1,5 +1,8 @@
 import 'package:easytrip/presentation/screens/chat_bot_screen.dart';
+import 'package:easytrip/presentation/screens/plan_form_page.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../widgets/animated_fab.dart';
 import 'trip_detail_page.dart';
 import '../../utils/trip_storage.dart';
@@ -11,7 +14,30 @@ class Tripscreen extends StatefulWidget {
   State<Tripscreen> createState() => _TripscreenState();
 }
 
-class _TripscreenState extends State<Tripscreen> {
+class _TripscreenState extends State<Tripscreen> with RouteAware {
+  // To enable automatic refresh on navigation, add a RouteObserver to your MaterialApp
+  // and subscribe/unsubscribe here using that observer. See Flutter docs for details.
+
+  @override
+  void didPopNext() {
+    // Called when coming back to this screen
+    setState(() {
+      _futureTrips = _loadTrips();
+    });
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.image, color: Colors.grey, size: 32),
+    );
+  }
+
   late Future<List<Map<String, dynamic>>> _futureTrips;
 
   @override
@@ -31,37 +57,143 @@ class _TripscreenState extends State<Tripscreen> {
   }
 
   void _onCreateTrip() {
-    // TODO: Navigate to trip creation form
-    ScaffoldMessenger.of(
+    Navigator.push(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Navigate to Create Trip')));
+      MaterialPageRoute(builder: (context) => const PlanFormPage()),
+    );
   }
 
   void _onBuildWithAI() {
-    // TODO: Navigate to AI trip builder
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ChatBotScreen(initialMessage: 'Hello'),
+        builder: (context) => const ChatBotScreen(initialMessage: ''),
       ),
     );
   }
 
   void _onModifyTrip(Map<String, dynamic> trip) {
-    // TODO: Implement modify logic
-    ScaffoldMessenger.of(
+    // Navigate to TripDetailPage for modification
+    Navigator.push(
       context,
-    ).showSnackBar(SnackBar(content: Text('Modify ${trip['name']}')));
+      MaterialPageRoute(builder: (_) => TripDetailPage(trip: trip)),
+    );
   }
 
   void _onDeleteTrip(Map<String, dynamic> trip) {
-    // TODO: Implement delete logic
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Delete ${trip['name']}')));
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Trip'),
+        content: Text(
+          'Are you sure you want to delete "${trip['name']}"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            onPressed: () async {
+              await TripStorage.deleteTrip(trip['name']);
+              Navigator.pop(context);
+              setState(() {
+                _futureTrips = _loadTrips();
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Trip "${trip['name']}" deleted.')),
+              );
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
+  // Widget _buildPlaceholderImage() {
+  //   return Container(
+  //     width: 56,
+  //     height: 56,
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey[300],
+  //       borderRadius: BorderRadius.circular(8),
+  //     ),
+  //     child: const Icon(Icons.image, color: Colors.grey, size: 32),
+  //   );
+  // }
+
   Widget _buildTripCard(Map<String, dynamic> trip) {
+    Widget leadingWidget;
+    String? img;
+    // Prefer trip['image'], else first valid in trip['images']
+    if (trip['image'] != null && trip['image'].toString().isNotEmpty) {
+      img = trip['image'].toString();
+    } else if (trip['images'] is List && (trip['images'] as List).isNotEmpty) {
+      final imagesList = (trip['images'] as List)
+          .whereType<String>()
+          .where((e) => e.isNotEmpty)
+          .toList();
+      if (imagesList.isNotEmpty) {
+        img = imagesList.first;
+      }
+    }
+    if (img != null && img.isNotEmpty) {
+      if (img.startsWith('/') ||
+          img.contains(':\\') ||
+          img.contains('storage') ||
+          img.contains('data/user')) {
+        final file = File(img);
+        if (file.existsSync()) {
+          leadingWidget = ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              file,
+              width: 56,
+              height: 56,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 56,
+                height: 56,
+                color: Colors.grey[300],
+                child: const Icon(Icons.broken_image),
+              ),
+            ),
+          );
+        } else {
+          // File path but file missing: show placeholder
+          leadingWidget = _buildPlaceholderImage();
+        }
+      } else {
+        // Try asset
+        leadingWidget = ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(
+            img,
+            width: 56,
+            height: 56,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildPlaceholderImage(),
+          ),
+        );
+      }
+    } else {
+      // No image at all: show placeholder
+      leadingWidget = _buildPlaceholderImage();
+    }
+    // Widget _buildPlaceholderImage() {
+    //   return Container(
+    //     width: 56,
+    //     height: 56,
+    //     decoration: BoxDecoration(
+    //       color: Colors.grey[300],
+    //       borderRadius: BorderRadius.circular(8),
+    //     ),
+    //     child: const Icon(Icons.image, color: Colors.grey, size: 32),
+    //   );
+    // }
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
@@ -71,17 +203,7 @@ class _TripscreenState extends State<Tripscreen> {
             MaterialPageRoute(builder: (_) => TripDetailPage(trip: trip)),
           );
         },
-        leading: trip['image'] != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  trip['image'],
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                ),
-              )
-            : null,
+        leading: leadingWidget,
         title: Text(
           trip['name'] ?? '',
           style: const TextStyle(fontWeight: FontWeight.bold),

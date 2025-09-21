@@ -13,11 +13,28 @@ class TripSavePage extends StatefulWidget {
 
 class _TripSavePageState extends State<TripSavePage> {
   Future<void> _addToItinerary(Map<String, dynamic> card) async {
+    // Get trip date range
+    final trip = await TripStorage.getTrip(widget.tripName);
+    DateTime? startDate;
+    DateTime? endDate;
+    if (trip != null && trip['dateStart'] != null && trip['dateEnd'] != null) {
+      startDate = DateTime.tryParse(trip['dateStart']);
+      endDate = DateTime.tryParse(trip['dateEnd']);
+    }
+    final now = DateTime.now();
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      initialDate: (startDate != null && now.isBefore(startDate))
+          ? startDate
+          : now,
+      firstDate: startDate ?? DateTime(2020),
+      lastDate: endDate ?? DateTime(2100),
+      selectableDayPredicate: (date) {
+        if (startDate != null && endDate != null) {
+          return !date.isBefore(startDate) && !date.isAfter(endDate);
+        }
+        return true;
+      },
     );
     if (pickedDate == null) return;
     final pickedTime = await showTimePicker(
