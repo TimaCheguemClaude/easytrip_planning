@@ -1,11 +1,49 @@
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easytrip/presentation/screens/settings/settingscreen.dart';
+import 'package:easytrip/presentation/screens/about_us_page.dart';
+import 'package:easytrip/presentation/screens/referral_page.dart';
+import 'package:easytrip/presentation/screens/complain_page.dart';
 import 'package:flutter/material.dart';
 import 'package:easytrip/presentation/screens/loginscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:easytrip/utils/theme.dart';
 
-class SidebarMenu extends StatelessWidget {
+class SidebarMenu extends StatefulWidget {
   const SidebarMenu({super.key});
+  @override
+  State<SidebarMenu> createState() => _SidebarMenuState();
+}
+
+class _SidebarMenuState extends State<SidebarMenu> {
+  String name = '';
+  String email = '';
+  String avatarUrl = '';
+  File? avatarImageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedAvatar = prefs.getString('profile_avatar') ?? '';
+    File? avatarFile;
+    if (savedAvatar.isNotEmpty) {
+      final file = File(savedAvatar);
+      if (await file.exists()) {
+        avatarFile = file;
+      }
+    }
+    setState(() {
+      name = prefs.getString('profile_name') ?? 'John Doe';
+      email = prefs.getString('profile_email') ?? 'john.doe@email.com';
+      avatarUrl = savedAvatar;
+      avatarImageFile = avatarFile;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +77,24 @@ class SidebarMenu extends StatelessWidget {
                   CircleAvatar(
                     radius: 32,
                     backgroundColor: Colors.blue.withOpacity(0.9),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/default.jpg'),
-                      // If you don't have this asset, use a default icon:
-                      // child: Icon(Icons.person, size: 40, color: Colors.blue),
+                      backgroundImage:
+                          avatarImageFile != null &&
+                              avatarImageFile!.existsSync()
+                          ? FileImage(avatarImageFile!)
+                          : (avatarUrl.isNotEmpty &&
+                                        File(avatarUrl).existsSync()
+                                    ? FileImage(File(avatarUrl))
+                                    : const AssetImage('assets/default.jpg'))
+                                as ImageProvider,
+                      child:
+                          (avatarImageFile == null ||
+                                  !avatarImageFile!.existsSync()) &&
+                              (avatarUrl.isEmpty ||
+                                  !File(avatarUrl).existsSync())
+                          ? Icon(Icons.person, size: 40, color: Colors.blue)
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -52,7 +103,7 @@ class SidebarMenu extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tima Claude',
+                          name,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -60,7 +111,7 @@ class SidebarMenu extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'claudetima@email.com',
+                          email,
                           style: TextStyle(
                             fontSize: 14,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -88,21 +139,39 @@ class SidebarMenu extends StatelessWidget {
               context,
               icon: Icons.report_problem_outlined,
               title: 'Complain',
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ComplainPage()),
+                );
+              },
             ),
 
             _buildMenuItem(
               context,
               icon: Icons.people_alt_outlined,
               title: 'Referral',
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReferralPage()),
+                );
+              },
             ),
 
             _buildMenuItem(
               context,
               icon: Icons.info_outline,
               title: 'About Us',
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AboutUsPage()),
+                );
+              },
             ),
 
             _buildMenuItem(

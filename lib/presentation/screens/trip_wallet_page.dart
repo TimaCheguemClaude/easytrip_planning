@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../utils/wallet_storage.dart';
 
 class TripWalletPage extends StatefulWidget {
-  const TripWalletPage({super.key});
+  final Map<String, dynamic>? trip;
+  const TripWalletPage({super.key, this.trip});
 
   @override
   State<TripWalletPage> createState() => _TripWalletPageState();
@@ -15,6 +16,13 @@ class _TripWalletPageState extends State<TripWalletPage> {
   @override
   void initState() {
     super.initState();
+    // Use trip budget as initial balance if available
+    if (widget.trip != null && widget.trip!['budget'] != null) {
+      final budget = double.tryParse(widget.trip!['budget'].toString());
+      if (budget != null) {
+        _balance = budget;
+      }
+    }
     _loadWallet();
   }
 
@@ -22,7 +30,11 @@ class _TripWalletPageState extends State<TripWalletPage> {
     final bal = await WalletStorage.getBalance();
     final hist = await WalletStorage.getHistory();
     setState(() {
-      _balance = bal;
+      // Only use wallet storage balance if no trip budget is set
+      if ((widget.trip == null || widget.trip!['budget'] == null) &&
+          bal != null) {
+        _balance = bal;
+      }
       _history = hist;
     });
   }
@@ -33,6 +45,9 @@ class _TripWalletPageState extends State<TripWalletPage> {
       final newBalance = _balance + amount;
       await WalletStorage.setBalance(newBalance);
       await WalletStorage.addHistory('Added XAF ${amount.toStringAsFixed(2)}');
+      setState(() {
+        _balance = newBalance;
+      });
       await _loadWallet();
     }
   }
@@ -45,6 +60,9 @@ class _TripWalletPageState extends State<TripWalletPage> {
       await WalletStorage.addHistory(
         'Withdrew XAF ${amount.toStringAsFixed(2)}',
       );
+      setState(() {
+        _balance = newBalance;
+      });
       await _loadWallet();
     } else if (amount != null && amount > _balance) {
       ScaffoldMessenger.of(

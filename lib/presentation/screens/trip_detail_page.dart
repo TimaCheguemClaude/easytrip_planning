@@ -47,7 +47,7 @@ class _TripDetailPageState extends State<TripDetailPage> {
                     tripName: widget.trip['name'] ?? '',
                   ),
                   TripForYouPage(),
-                  TripWalletPage(),
+                  TripWalletPage(trip: widget.trip),
                 ],
               ),
             ),

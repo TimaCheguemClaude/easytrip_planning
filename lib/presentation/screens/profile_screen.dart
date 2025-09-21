@@ -1,21 +1,20 @@
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-
-import 'package:easytrip/presentation/screens/walletscreen.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'trip_wallet_page.dart';
 import 'settings/settingscreen.dart';
 import 'loginscreen.dart';
 import 'package:flutter/material.dart';
+//import 'package:easytrip/utils/theme.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
-class Profilescreen extends StatefulWidget {
-  const Profilescreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<Profilescreen> createState() => _ProfilescreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfilescreenState extends State<Profilescreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
   String name = '';
   String email = '';
   String avatarUrl = '';
@@ -29,19 +28,10 @@ class _ProfilescreenState extends State<Profilescreen> {
 
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedAvatar = prefs.getString('profile_avatar') ?? '';
-    File? avatarFile;
-    if (savedAvatar.isNotEmpty) {
-      final file = File(savedAvatar);
-      if (await file.exists()) {
-        avatarFile = file;
-      }
-    }
     setState(() {
       name = prefs.getString('profile_name') ?? 'John Doe';
       email = prefs.getString('profile_email') ?? 'john.doe@email.com';
-      avatarUrl = savedAvatar;
-      avatarImageFile = avatarFile;
+      avatarUrl = prefs.getString('profile_avatar') ?? '';
     });
   }
 
@@ -67,16 +57,8 @@ class _ProfilescreenState extends State<Profilescreen> {
                           source: ImageSource.gallery,
                         );
                         if (picked != null) {
-                          // Save to app directory
-                          final appDir =
-                              await getApplicationDocumentsDirectory();
-                          final fileName =
-                              'avatar_${DateTime.now().millisecondsSinceEpoch}_${picked.name}';
-                          final savedImage = await File(
-                            picked.path,
-                          ).copy('${appDir.path}/$fileName');
                           setStateDialog(() {
-                            tempAvatarFile = savedImage;
+                            tempAvatarFile = File(picked.path);
                           });
                         }
                       },
@@ -84,10 +66,9 @@ class _ProfilescreenState extends State<Profilescreen> {
                         radius: 40,
                         backgroundImage: tempAvatarFile != null
                             ? FileImage(tempAvatarFile!)
-                            : (avatarUrl.isNotEmpty &&
-                                          File(avatarUrl).existsSync()
-                                      ? FileImage(File(avatarUrl))
-                                      : const AssetImage('assets/default.jpg'))
+                            : (avatarUrl.isNotEmpty
+                                      ? NetworkImage(avatarUrl)
+                                      : AssetImage('assets/default.jpg'))
                                   as ImageProvider,
                         child: Align(
                           alignment: Alignment.bottomRight,
@@ -137,10 +118,15 @@ class _ProfilescreenState extends State<Profilescreen> {
       await prefs.setString('profile_name', nameController.text.trim());
       await prefs.setString('profile_email', emailController.text.trim());
       if (tempAvatarFile?.path != null) {
+        // Save the file path locally (for demo; in production, use a better solution)
         await prefs.setString('profile_avatar', tempAvatarFile!.path);
         setState(() {
           avatarImageFile = tempAvatarFile;
           avatarUrl = tempAvatarFile!.path;
+        });
+      } else {
+        setState(() {
+          avatarUrl = avatarUrl;
         });
       }
       setState(() {
@@ -156,7 +142,7 @@ class _ProfilescreenState extends State<Profilescreen> {
   void _openTrips() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const Tripscreen()),
+      MaterialPageRoute(builder: (context) => const TripWalletPage()),
     );
   }
 
@@ -226,19 +212,10 @@ class _ProfilescreenState extends State<Profilescreen> {
                       CircleAvatar(
                         radius: 54,
                         backgroundColor: theme.colorScheme.onPrimary,
-                        backgroundImage:
-                            avatarImageFile != null &&
-                                avatarImageFile!.existsSync()
-                            ? FileImage(avatarImageFile!)
-                            : (avatarUrl.isNotEmpty &&
-                                      File(avatarUrl).existsSync()
-                                  ? FileImage(File(avatarUrl))
-                                  : null),
-                        child:
-                            (avatarImageFile == null ||
-                                    !avatarImageFile!.existsSync()) &&
-                                (avatarUrl.isEmpty ||
-                                    !File(avatarUrl).existsSync())
+                        backgroundImage: avatarUrl.isNotEmpty
+                            ? NetworkImage(avatarUrl)
+                            : null,
+                        child: avatarUrl.isEmpty
                             ? Icon(
                                 Icons.person,
                                 size: 60,
@@ -314,7 +291,7 @@ class _ProfilescreenState extends State<Profilescreen> {
                     icon: Icons.settings,
                     label: 'Settings',
                     onTap: _openSettings,
-                    color: theme.colorScheme.tertiary,
+                    color: theme.colorScheme.tertiary ?? Colors.teal,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(

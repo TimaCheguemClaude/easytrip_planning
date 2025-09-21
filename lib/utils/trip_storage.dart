@@ -2,6 +2,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class TripStorage {
+  static Future<void> deleteTrip(String tripName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tripKey(tripName));
+  }
+
   static Future<void> unsaveCardFromTrip(
     String tripName,
     Map<String, dynamic> card,

@@ -48,6 +48,7 @@ class _AnimatedFloatingActionButtonState
 
   @override
   Widget build(BuildContext context) {
+    final Color fabColor = Theme.of(context).colorScheme.primary;
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
@@ -73,6 +74,8 @@ class _AnimatedFloatingActionButtonState
                       icon: const Icon(Icons.add),
                       label: const Text('Create a trip'),
                       onPressed: widget.onCreateTrip,
+                      backgroundColor: fabColor,
+                      foregroundColor: Colors.white,
                     ),
                     const SizedBox(width: 12),
                     FloatingActionButton.extended(
@@ -80,6 +83,8 @@ class _AnimatedFloatingActionButtonState
                       icon: const Icon(Icons.auto_awesome),
                       label: const Text('Build a trip with AI'),
                       onPressed: widget.onBuildWithAI,
+                      backgroundColor: fabColor,
+                      foregroundColor: Colors.white,
                     ),
                   ],
                 )
@@ -91,6 +96,8 @@ class _AnimatedFloatingActionButtonState
           child: FloatingActionButton(
             heroTag: 'main_fab',
             onPressed: _toggle,
+            backgroundColor: fabColor,
+            foregroundColor: Colors.white,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: isOpen

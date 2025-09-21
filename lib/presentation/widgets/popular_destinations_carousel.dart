@@ -9,33 +9,39 @@ class PopularDestinationsCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final destinations = MockExploreData.getPopularDestinations(cityName);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            // TODO: Use intl
-            'Popular Destinations',
-            style: Theme.of(context).textTheme.titleLarge,
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Popular Destinations',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        SizedBox(
-          height: 200,
-          child: ListView(
+          const SizedBox(height: 12),
+          SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            children: destinations
-                .map(
-                  (dest) => SizedBox(
-                    width: 160,
-                    height: 190,
-                    child: ExploreCard(item: dest),
-                  ),
-                )
-                .toList(),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: destinations
+                  .map(
+                    (dest) => Container(
+                      width: 170,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ExploreCard(item: dest),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
