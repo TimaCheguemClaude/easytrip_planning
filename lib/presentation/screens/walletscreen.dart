@@ -1,20 +1,23 @@
+import 'dart:io';
+
 import 'package:easytrip/presentation/screens/chat_bot_screen.dart';
 import 'package:easytrip/presentation/screens/plan_form_page.dart';
-import 'dart:io';
+import 'package:easytrip/presentation/screens/user_bookings_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
+import '../../utils/trip_storage.dart';
 import '../widgets/animated_fab.dart';
 import 'trip_detail_page.dart';
-import '../../utils/trip_storage.dart';
 
 class Tripscreen extends StatefulWidget {
-  const Tripscreen({Key? key}) : super(key: key);
+  const Tripscreen({super.key});
 
   @override
   State<Tripscreen> createState() => _TripscreenState();
 }
 
-class _TripscreenState extends State<Tripscreen> with RouteAware {
+class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerProviderStateMixin {
+  late TabController _tabController;
   // To enable automatic refresh on navigation, add a RouteObserver to your MaterialApp
   // and subscribe/unsubscribe here using that observer. See Flutter docs for details.
 
@@ -43,7 +46,14 @@ class _TripscreenState extends State<Tripscreen> with RouteAware {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _futureTrips = _loadTrips();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<List<Map<String, dynamic>>> _loadTrips() async {
@@ -53,6 +63,7 @@ class _TripscreenState extends State<Tripscreen> with RouteAware {
       final trip = await TripStorage.getTrip(name);
       if (trip != null) trips.add(trip);
     }
+
     return trips;
   }
 
@@ -205,12 +216,24 @@ class _TripscreenState extends State<Tripscreen> with RouteAware {
         },
         leading: leadingWidget,
         title: Text(
-          trip['name'] ?? '',
+          trip['name'] ?? 'Untitled Trip',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: trip['dateStart'] != null
-            ? Text(trip['dateStart'].toString().split('T')[0])
-            : null,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (trip['dateStart'] != null)
+              Text(
+                'Start: ${trip['dateStart'].toString().split('T')[0]}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            if (trip['savedCards'] != null && trip['savedCards'] is List)
+              Text(
+                '${(trip['savedCards'] as List).length} saved places',
+                style: TextStyle(color: Colors.blue[600], fontSize: 12),
+              ),
+          ],
+        ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
             if (value == 'modify') _onModifyTrip(trip);
@@ -229,8 +252,38 @@ class _TripscreenState extends State<Tripscreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Trips')),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      appBar: AppBar(
+        title: const Text('Trips & Bookings'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              icon: Icon(Icons.luggage),
+              text: 'My Trips',
+            ),
+            Tab(
+              icon: Icon(Icons.book_online),
+              text: 'Bookings',
+            ),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildTripsTab(),
+          const UserBookingsScreen(),
+        ],
+      ),
+      floatingActionButton: AnimatedFloatingActionButton(
+        onCreateTrip: _onCreateTrip,
+        onBuildWithAI: _onBuildWithAI,
+      ),
+    );
+  }
+
+  Widget _buildTripsTab() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
         future: _futureTrips,
         builder: (context, snapshot) {
           final trips = snapshot.data ?? [];
@@ -238,47 +291,117 @@ class _TripscreenState extends State<Tripscreen> with RouteAware {
             return const Center(child: CircularProgressIndicator());
           }
           if (trips.isEmpty) {
-            return const Center(child: Text('No trips found.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.luggage, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No trips found',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Create your first trip or save recommendations to see them here',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            );
           }
+
           final now = DateTime.now();
-          final upcoming = trips.where((t) {
-            final date = t['dateStart'] != null
-                ? DateTime.tryParse(t['dateStart'])
+          final upcoming = <Map<String, dynamic>>[];
+          final past = <Map<String, dynamic>>[];
+          final current = <Map<String, dynamic>>[];
+          final noDate = <Map<String, dynamic>>[];
+
+          // Categorize trips based on dates
+          for (final trip in trips) {
+            final startDate = trip['dateStart'] != null
+                ? DateTime.tryParse(trip['dateStart'].toString())
                 : null;
-            return date != null && date.isAfter(now);
-          }).toList();
-          final past = trips.where((t) {
-            final date = t['dateEnd'] != null
-                ? DateTime.tryParse(t['dateEnd'])
+            final endDate = trip['dateEnd'] != null
+                ? DateTime.tryParse(trip['dateEnd'].toString())
                 : null;
-            return date != null && date.isBefore(now);
-          }).toList();
+
+            if (startDate == null && endDate == null) {
+              // No date information - show in "My Trips" section
+              noDate.add(trip);
+            } else if (startDate != null && endDate != null) {
+              if (startDate.isAfter(now)) {
+                upcoming.add(trip);
+              } else if (endDate.isBefore(now)) {
+                past.add(trip);
+              } else {
+                current.add(trip);
+              }
+            } else if (startDate != null) {
+              if (startDate.isAfter(now)) {
+                upcoming.add(trip);
+              } else {
+                current.add(trip);
+              }
+            } else {
+              noDate.add(trip);
+            }
+          }
+
           return ListView(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Upcoming Trips',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              // Current trips
+              if (current.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Current Trips',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              ...upcoming.map(_buildTripCard),
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Past Trips',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ...current.map(_buildTripCard),
+              ],
+
+              // Upcoming trips
+              if (upcoming.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Upcoming Trips',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              ...past.map(_buildTripCard),
+                ...upcoming.map(_buildTripCard),
+              ],
+
+              // My trips (no date or saved recommendations)
+              if (noDate.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'My Trips',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...noDate.map(_buildTripCard),
+              ],
+
+              // Past trips
+              if (past.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Past Trips',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...past.map(_buildTripCard),
+              ],
             ],
           );
         },
-      ),
-      floatingActionButton: AnimatedFloatingActionButton(
-        onCreateTrip: _onCreateTrip,
-        onBuildWithAI: _onBuildWithAI,
-      ),
-    );
+      );
+    
   }
 }

@@ -1,15 +1,17 @@
 import 'package:easytrip/data/provider/repository/loginrepository.dart';
 import 'package:easytrip/data/provider/server/loginserver.dart';
+import 'package:easytrip/l10n/app_localizations.dart'; // Import generated localizations
 import 'package:easytrip/logic/loginbloc/bloc/login_bloc.dart';
 import 'package:easytrip/presentation/Onboboarding/onboarding_view.dart';
 import 'package:easytrip/presentation/screens/mainscreen.dart';
+import 'package:easytrip/services/notification_service.dart';
 import 'package:easytrip/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:easytrip/l10n/app_localizations.dart'; // Import generated localizations
+
 import 'logic/blocObserver/blocobserver.dart';
 
 void main() async {
@@ -23,6 +25,9 @@ void main() async {
   // Create and initialize the UiProvider
   final uiProvider = UiProvider();
   await uiProvider.init();
+
+  // Initialize notification service
+  await NotificationService.initialize();
 
   runApp(
     MultiProvider(

@@ -1,6 +1,8 @@
+import 'package:easytrip/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:easytrip/utils/theme.dart';
+
+import 'ai_recommendations_screen.dart';
 import 'homescreen.dart';
 import 'offerscreen.dart';
 import 'profilescreen.dart';
@@ -18,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    // const Favscreen(),
+    const AIRecommendationsScreen(),
     const Tripscreen(),
     const OfferScreen(),
     const Profilescreen(),
@@ -44,10 +46,10 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          /* BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            label: 'Favourite',
-          ),*/
+          BottomNavigationBarItem(
+            icon: Icon(Icons.smart_toy),
+            label: 'AI Recs',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_balance_wallet_outlined),
             label: 'Trip',

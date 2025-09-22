@@ -1,13 +1,15 @@
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:easytrip/presentation/screens/settings/settingscreen.dart';
+
 import 'package:easytrip/presentation/screens/about_us_page.dart';
-import 'package:easytrip/presentation/screens/referral_page.dart';
 import 'package:easytrip/presentation/screens/complain_page.dart';
-import 'package:flutter/material.dart';
 import 'package:easytrip/presentation/screens/loginscreen.dart';
-import 'package:provider/provider.dart';
+import 'package:easytrip/presentation/screens/referral_page.dart';
+import 'package:easytrip/presentation/screens/settings/settingscreen.dart';
+import 'package:easytrip/presentation/screens/site_owner_login_screen.dart';
 import 'package:easytrip/utils/theme.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SidebarMenu extends StatefulWidget {
   const SidebarMenu({super.key});
@@ -194,6 +196,21 @@ class _SidebarMenuState extends State<SidebarMenu> {
               icon: Icons.help_outline,
               title: 'Help and Support',
               onTap: () => Navigator.pop(context),
+            ),
+
+            _buildMenuItem(
+              context,
+              icon: Icons.business,
+              title: 'Site Owner Login',
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SiteOwnerLoginScreen(),
+                  ),
+                );
+              },
             ),
 
             const Divider(),
