@@ -682,7 +682,7 @@ class TouristicSitesDataset {
         'Nature Walks',
       ],
       price: 10000,
-      image: 'assets/chutelobekribi.jpg',
+      image: 'assets/dataset/kribi/activities/chutelobekribi.jpg',
       description:
           'Spectacular waterfalls that flow directly into the Atlantic Ocean. One of Cameroon\'s most photographed natural wonders.',
     ),
@@ -696,7 +696,7 @@ class TouristicSitesDataset {
         'Sunbathing',
       ],
       price: 45000,
-      image: 'assets/hotelkribi.jpg',
+      image: 'assets/dataset/kribi/hotels/hotelkribi.jpg',
       description:
           'Pristine beachfront resort with white sandy beaches, crystal clear waters, and various water sports activities.',
     ),

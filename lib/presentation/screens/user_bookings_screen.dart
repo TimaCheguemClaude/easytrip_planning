@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../data/model/booking.dart';
 import '../../services/booking_database_service.dart';
 import '../../utils/theme.dart';
-import '../widgets/custom_loader.dart';
 
 class UserBookingsScreen extends StatefulWidget {
   const UserBookingsScreen({super.key});
@@ -29,6 +28,9 @@ class _UserBookingsScreenState extends State<UserBookingsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild when tab changes to update colors
+    });
     _loadUserBookings();
   }
 
@@ -65,83 +67,200 @@ class _UserBookingsScreenState extends State<UserBookingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<UiProvider>(context);
+    final theme = Theme.of(context);
+    Provider.of<UiProvider>(context); // ensure rebuild on theme change
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.book_online,
+              color: theme.colorScheme.onPrimary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'My Bookings',
+              style: TextStyle(
+                color: theme.colorScheme.onPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(
+              Icons.refresh,
+              color: theme.colorScheme.onPrimary,
+            ),
             onPressed: _loadUserBookings,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: [
-            Tab(
-              text: 'All (${_allBookings.length})',
-              icon: const Icon(Icons.list),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
             ),
-            Tab(
-              text: 'Pending (${_pendingBookings.length})',
-              icon: const Icon(Icons.pending),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: theme.primaryColor.withOpacity(0.1),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: theme.primaryColor,
+              unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
+              tabs: [
+                _buildTab('All', Icons.list, _allBookings.length, 0, theme),
+                _buildTab('Pending', Icons.pending, _pendingBookings.length, 1, theme),
+                _buildTab('Approved', Icons.check_circle, _approvedBookings.length, 2, theme),
+                _buildTab('Rejected', Icons.cancel, _rejectedBookings.length, 3, theme),
+              ],
             ),
-            Tab(
-              text: 'Approved (${_approvedBookings.length})',
-              icon: const Icon(Icons.check_circle),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: _isLoading
+            ? _buildLoadingState(theme)
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildBookingsList(_allBookings),
+                  _buildBookingsList(_pendingBookings),
+                  _buildBookingsList(_approvedBookings),
+                  _buildBookingsList(_rejectedBookings),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String label, IconData icon, int count, int index, ThemeData theme) {
+    final isActive = _tabController.index == index;
+    return Tab(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isActive 
+                  ? theme.primaryColor 
+                  : theme.colorScheme.onSurface.withOpacity(0.6),
             ),
-            Tab(
-              text: 'Rejected (${_rejectedBookings.length})',
-              icon: const Icon(Icons.cancel),
+            const SizedBox(width: 6),
+            Text(
+              '$label ($count)',
+              style: TextStyle(
+                color: isActive 
+                    ? theme.primaryColor 
+                    : theme.colorScheme.onSurface.withOpacity(0.6),
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                fontSize: 12,
+              ),
             ),
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CustomLoader(size: 48))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildBookingsList(_allBookings),
-                _buildBookingsList(_pendingBookings),
-                _buildBookingsList(_approvedBookings),
-                _buildBookingsList(_rejectedBookings),
-              ],
+    );
+  }
+
+  Widget _buildLoadingState(ThemeData theme) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: theme.primaryColor,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading your bookings...',
+            style: TextStyle(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              fontSize: 16,
             ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildBookingsList(List<Booking> bookings) {
+    final theme = Theme.of(context);
+    
     if (bookings.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.book_online,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No bookings found',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[600],
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.book_online,
+                  size: 48,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Book a trip through AI recommendations to see your bookings here',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
+              const SizedBox(height: 24),
+              Text(
+                'No bookings found',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Book a trip through AI recommendations\nto see your bookings here',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -160,154 +279,201 @@ class _UserBookingsScreenState extends State<UserBookingsScreen>
   }
 
   Widget _buildBookingCard(Booking booking) {
-    return Card(
+    final theme = Theme.of(context);
+    
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+          width: 1,
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with image and basic info
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // Add tap functionality if needed
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    booking.siteImage,
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 70,
-                      height: 70,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        booking.siteName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Booking ID: ${booking.bookingId}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildStatusChip(booking.status),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Booking details
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  _buildDetailRow('Travel Date', _formatDate(booking.travelDate), Icons.calendar_today),
-                  _buildDetailRow('People', '${booking.numberOfPeople}', Icons.group),
-                  _buildDetailRow('Booked On', _formatDate(booking.createdAt), Icons.access_time),
-                  if (booking.specialRequests != null && booking.specialRequests!.isNotEmpty)
-                    _buildDetailRow('Special Requests', booking.specialRequests!, Icons.note),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Status description and actions
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: _getStatusColor(booking.status).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: _getStatusColor(booking.status).withOpacity(0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        _getStatusIcon(booking.status),
-                        color: _getStatusColor(booking.status),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          booking.status.description,
-                          style: TextStyle(
-                            color: _getStatusColor(booking.status),
-                            fontWeight: FontWeight.w500,
+                // Header with image and basic info
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        booking.siteImage,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: theme.colorScheme.onSurface.withOpacity(0.4),
+                            size: 32,
                           ),
                         ),
                       ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            booking.siteName,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'ID: ${booking.bookingId}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildStatusChip(booking.status, theme),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Booking details
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildDetailRow('Travel Date', _formatDate(booking.travelDate), Icons.calendar_today, theme),
+                      _buildDetailRow('People', '${booking.numberOfPeople}', Icons.group, theme),
+                      _buildDetailRow('Booked On', _formatDate(booking.createdAt), Icons.access_time, theme),
+                      if (booking.specialRequests != null && booking.specialRequests!.isNotEmpty)
+                        _buildDetailRow('Special Requests', booking.specialRequests!, Icons.note, theme),
                     ],
                   ),
+                ),
 
-                  if (booking.status == BookingStatus.approved) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
+                const SizedBox(height: 16),
+
+                // Status description and actions
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(booking.status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _getStatusColor(booking.status).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _getStatusIcon(booking.status),
+                            color: _getStatusColor(booking.status),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              booking.status.description,
+                              style: TextStyle(
+                                color: _getStatusColor(booking.status),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      if (booking.status == BookingStatus.approved) ...[
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () => _copyContactInfo(booking),
                             icon: const Icon(Icons.copy, size: 18),
                             label: const Text('Copy Booking Info'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
+                              backgroundColor: _getStatusColor(booking.status),
                               foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                         ),
                       ],
-                    ),
-                  ],
-                ],
-              ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStatusChip(BookingStatus status) {
+  Widget _buildStatusChip(BookingStatus status, ThemeData theme) {
     final color = _getStatusColor(status);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -321,9 +487,10 @@ class _UserBookingsScreenState extends State<UserBookingsScreen>
           Text(
             status.displayName,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
               color: color,
+              letterSpacing: 0.3,
             ),
           ),
         ],
@@ -331,21 +498,32 @@ class _UserBookingsScreenState extends State<UserBookingsScreen>
     );
   }
 
-  Widget _buildDetailRow(String label, String value, IconData icon) {
+  Widget _buildDetailRow(String label, String value, IconData icon, ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
-          const SizedBox(width: 8),
+          Icon(
+            icon, 
+            size: 16, 
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
           Text(
             '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+              fontSize: 13,
+            ),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 13,
+              ),
             ),
           ),
         ],

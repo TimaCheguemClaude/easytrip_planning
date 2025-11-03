@@ -1,10 +1,9 @@
 import 'package:easytrip/data/model/booking.dart';
 import 'package:easytrip/presentation/widgets/custom_text_field.dart';
 import 'package:easytrip/services/booking_database_service.dart';
-import 'package:easytrip/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 import '../../data/model/touristic_site.dart';
 
@@ -39,10 +38,10 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<UiProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Your Trip')),
+      appBar: AppBar(title: Text(l10n.bookNow)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -118,25 +117,26 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Widget _buildBookingForm() {
+    final l10n = AppLocalizations.of(context)!;
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Booking Details',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            l10n.details,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
           // Name field
           CustomTextField(
             controller: _nameController,
-            labelText: 'Full Name *',
+            labelText: '${l10n.fullName} *',
             prefixIcon: Icons.person,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your full name';
+                return l10n.pleaseEnterName;
               }
               return null;
             },
@@ -146,17 +146,17 @@ class _BookingScreenState extends State<BookingScreen> {
           // Email field
           CustomTextField(
             controller: _emailController,
-            labelText: 'Email Address *',
+            labelText: '${l10n.emailAddress} *',
             prefixIcon: Icons.email,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your email address';
+                return l10n.pleaseEnterEmail;
               }
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return 'Please enter a valid email address';
+                return l10n.pleaseEnterValidEmail;
               }
               return null;
             },
@@ -167,14 +167,14 @@ class _BookingScreenState extends State<BookingScreen> {
           TextFormField(
             controller: _phoneController,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'Phone Number *',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.phone),
+            decoration: InputDecoration(
+              labelText: '${l10n.phoneNumber} *',
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.phone),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your phone number';
+                return l10n.pleaseEnterPhone;
               }
               return null;
             },
@@ -196,8 +196,8 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(width: 12),
                   Text(
                     _selectedDate == null
-                        ? 'Select Travel Date *'
-                        : 'Travel Date: ${_formatDate(_selectedDate!)}',
+                        ? '${l10n.selectDate} *'
+                        : '${l10n.selectDate}: ${_formatDate(_selectedDate!)}',
                     style: TextStyle(
                       fontSize: 16,
                       color: _selectedDate == null ? Colors.grey[600] : null,
@@ -212,7 +212,7 @@ class _BookingScreenState extends State<BookingScreen> {
           // Number of people
           Row(
             children: [
-              const Text('Number of People: ', style: TextStyle(fontSize: 16)),
+              Text('${l10n.numberOfPeople}: ', style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 16),
               IconButton(
                 onPressed: _numberOfPeople > 1
@@ -239,10 +239,10 @@ class _BookingScreenState extends State<BookingScreen> {
           TextFormField(
             controller: _notesController,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Special Requests (Optional)',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.note),
+            decoration: InputDecoration(
+              labelText: '${l10n.notes} (${l10n.optional})',
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.note),
             ),
           ),
         ],
@@ -251,6 +251,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Widget _buildBookingButton() {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -262,7 +263,7 @@ class _BookingScreenState extends State<BookingScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: _isProcessing
-            ? const Row(
+            ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
@@ -274,12 +275,12 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                   ),
                   SizedBox(width: 12),
-                  Text('Processing...'),
+                  Text(l10n.processing),
                 ],
               )
-            : const Text(
-                'Confirm Booking',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            : Text(
+                l10n.confirmBooking,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -305,12 +306,13 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _processBooking() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
     if (_selectedDate == null) {
-      _showErrorSnackBar('Please select a travel date');
+      _showErrorSnackBar(l10n.selectTravelDate);
       return;
     }
 
@@ -355,11 +357,12 @@ class _BookingScreenState extends State<BookingScreen> {
         _isProcessing = false;
       });
 
-      _showErrorSnackBar('Failed to process booking: $e');
+      _showErrorSnackBar('${l10n.failedToProcessBooking}: $e');
     }
   }
 
   void _showBookingConfirmation(String bookingId) {
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.mediumImpact();
 
     showDialog(
@@ -367,7 +370,7 @@ class _BookingScreenState extends State<BookingScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.check_circle, color: Colors.green, size: 64),
-        title: const Text('Booking Confirmed!'),
+        title: Text(l10n.bookingConfirmed),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -392,9 +395,9 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Your booking is pending approval from the site owner. You will be contacted directly once approved.',
-              style: TextStyle(fontSize: 12),
+            Text(
+              l10n.bookingPendingApproval,
+              style: const TextStyle(fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ],
@@ -405,7 +408,7 @@ class _BookingScreenState extends State<BookingScreen> {
               Navigator.of(context).pop(); // Close dialog
               Navigator.of(context).pop(); // Go back to recommendations
             },
-            child: const Text('Done'),
+            child: Text(l10n.done),
           ),
         ],
       ),

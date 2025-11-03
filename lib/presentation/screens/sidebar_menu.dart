@@ -10,6 +10,7 @@ import 'package:easytrip/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class SidebarMenu extends StatefulWidget {
   const SidebarMenu({super.key});
@@ -51,6 +52,7 @@ class _SidebarMenuState extends State<SidebarMenu> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<UiProvider>(context);
     final isDark = themeProvider.isDark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Drawer(
       backgroundColor: isDark ? Colors.grey[900] : Colors.white,
@@ -133,14 +135,14 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.history,
-              title: 'History',
+              title: l10n.history,
               onTap: () => Navigator.pop(context),
             ),
 
             _buildMenuItem(
               context,
               icon: Icons.report_problem_outlined,
-              title: 'Complain',
+              title: l10n.complain,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -153,7 +155,7 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.people_alt_outlined,
-              title: 'Referral',
+              title: l10n.referral,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -166,7 +168,7 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.info_outline,
-              title: 'About Us',
+              title: l10n.aboutUs,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -179,7 +181,7 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.settings_outlined,
-              title: 'Settings',
+              title: l10n.settingsTab,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -194,14 +196,14 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.help_outline,
-              title: 'Help and Support',
+              title: l10n.helpAndSupport,
               onTap: () => Navigator.pop(context),
             ),
 
             _buildMenuItem(
               context,
               icon: Icons.business,
-              title: 'Site Owner Login',
+              title: l10n.siteOwnerLogin,
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -218,7 +220,7 @@ class _SidebarMenuState extends State<SidebarMenu> {
             _buildMenuItem(
               context,
               icon: Icons.logout,
-              title: 'Logout',
+              title: l10n.signOut,
               textColor: Colors.red,
               iconColor: Colors.red,
               onTap: () {

@@ -1,8 +1,10 @@
 import 'package:easytrip/presentation/Onboboarding/onboarding_items.dart';
+import 'package:easytrip/presentation/Onboboarding/onboarding_info.dart';
 import 'package:easytrip/presentation/screens/mainscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -16,9 +18,12 @@ class _OnboardingViewState extends State<OnboardingView> {
   final pageController = PageController();
 
   bool isLastPage = false;
+  
+  List<OnboardingInfo> get items => controller.getItems(context);
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 58, 123, 213),
       bottomSheet: Container(
@@ -35,14 +40,14 @@ class _OnboardingViewState extends State<OnboardingView> {
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () =>
-                        pageController.jumpToPage(controller.items.length - 1),
-                    child: const Text("Skip"),
+                        pageController.jumpToPage(items.length - 1),
+                    child: Text(l10n.skip),
                   ),
 
                   //Indicator
                   SmoothPageIndicator(
                     controller: pageController,
-                    count: controller.items.length,
+                    count: items.length,
                     onDotClicked: (index) => pageController.animateToPage(
                       index,
                       duration: const Duration(milliseconds: 600),
@@ -64,7 +69,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                       duration: const Duration(milliseconds: 600),
                       curve: Curves.easeIn,
                     ),
-                    child: const Text("Next"),
+                    child: Text(l10n.next),
                   ),
                 ],
               ),
@@ -73,17 +78,17 @@ class _OnboardingViewState extends State<OnboardingView> {
         margin: const EdgeInsets.symmetric(horizontal: 15),
         child: PageView.builder(
           onPageChanged: (index) =>
-              setState(() => isLastPage = controller.items.length - 1 == index),
-          itemCount: controller.items.length,
+              setState(() => isLastPage = items.length - 1 == index),
+          itemCount: items.length,
           controller: pageController,
           itemBuilder: (context, index) {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(controller.items[index].image),
+                Image.asset(items[index].image),
                 const SizedBox(height: 15),
                 Text(
-                  controller.items[index].title,
+                  items[index].title,
                   style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -91,7 +96,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  controller.items[index].descriptions,
+                  items[index].descriptions,
                   style: const TextStyle(color: Colors.black, fontSize: 17),
                   textAlign: TextAlign.center,
                 ),
@@ -110,6 +115,7 @@ class _OnboardingViewState extends State<OnboardingView> {
   //Get started button
 
   Widget getStarted() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -131,7 +137,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             MaterialPageRoute(builder: (context) => MainScreen()),
           );
         },
-        child: const Text("Get started", style: TextStyle(color: Colors.white)),
+        child: Text(l10n.getStarted, style: const TextStyle(color: Colors.white)),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../utils/wallet_storage.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class TripWalletPage extends StatefulWidget {
   final Map<String, dynamic>? trip;
@@ -40,11 +41,12 @@ class _TripWalletPageState extends State<TripWalletPage> {
   }
 
   Future<void> _addMoney() async {
-    final amount = await _showAmountDialog('Add Money');
+    final l10n = AppLocalizations.of(context)!;
+    final amount = await _showAmountDialog(l10n.addMoney);
     if (amount != null && amount > 0) {
       final newBalance = _balance + amount;
       await WalletStorage.setBalance(newBalance);
-      await WalletStorage.addHistory('Added XAF ${amount.toStringAsFixed(2)}');
+      await WalletStorage.addHistory('${l10n.added} XAF ${amount.toStringAsFixed(2)}');
       setState(() {
         _balance = newBalance;
       });
@@ -53,12 +55,13 @@ class _TripWalletPageState extends State<TripWalletPage> {
   }
 
   Future<void> _withdrawMoney() async {
-    final amount = await _showAmountDialog('Withdraw Money');
+    final l10n = AppLocalizations.of(context)!;
+    final amount = await _showAmountDialog(l10n.withdrawMoney);
     if (amount != null && amount > 0 && amount <= _balance) {
       final newBalance = _balance - amount;
       await WalletStorage.setBalance(newBalance);
       await WalletStorage.addHistory(
-        'Withdrew XAF ${amount.toStringAsFixed(2)}',
+        '${l10n.withdrew} XAF ${amount.toStringAsFixed(2)}',
       );
       setState(() {
         _balance = newBalance;
@@ -67,11 +70,12 @@ class _TripWalletPageState extends State<TripWalletPage> {
     } else if (amount != null && amount > _balance) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Insufficient balance')));
+      ).showSnackBar(SnackBar(content: Text(l10n.insufficientBalance)));
     }
   }
 
   Future<double?> _showAmountDialog(String title) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     final result = await showDialog<double>(
       context: context,
@@ -80,19 +84,19 @@ class _TripWalletPageState extends State<TripWalletPage> {
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Amount'),
+          decoration: InputDecoration(labelText: l10n.amount),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               final value = double.tryParse(controller.text);
               Navigator.pop(context, value);
             },
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -101,17 +105,18 @@ class _TripWalletPageState extends State<TripWalletPage> {
   }
 
   void _showHistory() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            'Transaction History',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            l10n.transactionHistory,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          if (_history.isEmpty) const Text('No transactions yet.'),
+          if (_history.isEmpty) Text(l10n.noTransactionsYet),
           ..._history.map((e) => ListTile(title: Text(e))),
           const SizedBox(height: 12),
           TextButton(
@@ -120,7 +125,7 @@ class _TripWalletPageState extends State<TripWalletPage> {
               await _loadWallet();
               Navigator.pop(context);
             },
-            child: const Text('Clear History'),
+            child: Text(l10n.clearHistory),
           ),
         ],
       ),
@@ -129,13 +134,14 @@ class _TripWalletPageState extends State<TripWalletPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Balance: XAF ${_balance.toStringAsFixed(2)}',
+            '${l10n.balance}: XAF ${_balance.toStringAsFixed(2)}',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
@@ -146,21 +152,21 @@ class _TripWalletPageState extends State<TripWalletPage> {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.add),
-                  title: const Text('Add Money'),
+                  title: Text(l10n.addMoney),
                   onTap: _addMoney,
                 ),
               ),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.remove),
-                  title: const Text('Withdraw Money'),
+                  title: Text(l10n.withdrawMoney),
                   onTap: _withdrawMoney,
                 ),
               ),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.history),
-                  title: const Text('Transaction History'),
+                  title: Text(l10n.transactionHistory),
                   onTap: _showHistory,
                 ),
               ),

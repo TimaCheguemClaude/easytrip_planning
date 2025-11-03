@@ -13,6 +13,7 @@ import '../../services/storage_service.dart';
 import '../widgets/recommendation_card.dart';
 import '../widgets/trip_input_dialog.dart';
 import 'booking_screen.dart';
+import 'explore_card_detail_page.dart';
 
 class AIRecommendationsScreen extends StatefulWidget {
   const AIRecommendationsScreen({super.key});
@@ -43,8 +44,7 @@ class _AIRecommendationsScreenState extends State<AIRecommendationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<UiProvider>(context);
-    final isDark = themeProvider.isDark;
+    Provider.of<UiProvider>(context); // ensure rebuild on theme change
 
     return Scaffold(
       appBar: AppBar(
@@ -160,6 +160,7 @@ class _AIRecommendationsScreenState extends State<AIRecommendationsScreen> {
           recommendation: recommendation,
           onSave: () => _saveRecommendation(recommendation),
           onBook: () => _bookRecommendation(recommendation),
+          onTap: () => _navigateToDetail(recommendation),
         );
       },
     );
@@ -170,6 +171,27 @@ class _AIRecommendationsScreenState extends State<AIRecommendationsScreen> {
       context: context,
       builder: (context) => TripInputDialog(
         onSubmit: _getRecommendations,
+      ),
+    );
+  }
+
+  void _navigateToDetail(Recommendation recommendation) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExploreCardDetailPage(
+          item: {
+            'name': recommendation.title,
+            'description': recommendation.description,
+            'image': recommendation.image,
+            'city': 'AI Recommendation',
+            'stars': 4.5,
+            'likes': 0,
+          },
+          imageUrls: [recommendation.image],
+          reviews: [],
+          similarItems: [],
+        ),
       ),
     );
   }
@@ -220,7 +242,7 @@ class _AIRecommendationsScreenState extends State<AIRecommendationsScreen> {
         'name': recommendation.title,
         'image': recommendation.image,
         'description': recommendation.description,
-        'stars': 4.5, // Default rating
+        'stars': 4.7, // Default rating
         'reason': recommendation.reason,
       };
 
@@ -290,13 +312,13 @@ class _AIRecommendationsScreenState extends State<AIRecommendationsScreen> {
             ),
             Expanded(
               child: savedRecommendations.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.bookmark_border, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('No saved recommendations yet'),
+                          Icon(Icons.bookmark_border, size: 64, color: Theme.of(context).textTheme.bodyMedium?.color),
+                          const SizedBox(height: 16),
+                          const Text('No saved recommendations yet'),
                         ],
                       ),
                     )

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../../utils/trip_storage.dart';
+import '../../utils/theme.dart';
 
 class TripItineraryPage extends StatefulWidget {
   final String? tripName;
@@ -48,11 +50,24 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
   }
 
   void _deleteItineraryItem(int index) async {
+    final item = _itinerary[index];
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Activity'),
-        content: const Text('Are you sure you want to delete this activity?'),
+        title: Row(
+          children: [
+            Icon(
+              Icons.delete_outline,
+              color: Colors.red,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            const Text('Delete Activity'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete "${item['name']}" from your itinerary?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -60,6 +75,10 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Delete'),
           ),
         ],
@@ -70,6 +89,14 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
         _itinerary.removeAt(index);
       });
       await _saveItinerary();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item['name']} removed from itinerary'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -125,9 +152,54 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
     }
   }
 
+  Widget _buildImageWidget(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(
+          Icons.image_not_supported,
+          color: Colors.grey,
+          size: 20,
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.asset(
+        imagePath,
+        width: 40,
+        height: 40,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.image_not_supported,
+              color: Colors.grey,
+              size: 20,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    Provider.of<UiProvider>(context); // ensure rebuild on theme change
+    
     return Builder(
       builder: (context) {
         // Group itinerary items by date (yyyy-MM-dd)
@@ -156,12 +228,75 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text(
-              'Itinerary Timeline',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timeline,
+                    color: theme.colorScheme.primary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Itinerary Timeline',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (_itinerary.isEmpty)
-              const Center(child: Text('No itinerary items yet.')),
+              Container(
+                padding: const EdgeInsets.all(32),
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.event_note,
+                      size: 64,
+                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No itinerary items yet',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Add activities from your saved places\nto create your itinerary',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ...allDates.asMap().entries.map((entry) {
               final index = entry.key;
               final dateStr = entry.value;
@@ -200,11 +335,33 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
                   ),
                   children: [
                     if (items.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          'No activities for this day.',
-                          style: theme.textTheme.bodyMedium,
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.event_busy,
+                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'No activities for this day',
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ...List.generate(items.length, (i) {
@@ -283,14 +440,7 @@ class _TripItineraryPageState extends State<TripItineraryPage> {
                                 ),
                               ),
                               child: ListTile(
-                                leading: item['image'] != null
-                                    ? Image.asset(
-                                        item['image'],
-                                        width: 40,
-                                        height: 40,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
+                                leading: _buildImageWidget(item['image']),
                                 title: Text(
                                   item['name'] ?? '',
                                   style: TextStyle(

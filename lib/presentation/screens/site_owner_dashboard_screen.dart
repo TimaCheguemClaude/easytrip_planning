@@ -7,6 +7,7 @@ import '../../services/booking_database_service.dart';
 import '../../utils/theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_loader.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class SiteOwnerDashboardScreen extends StatefulWidget {
   const SiteOwnerDashboardScreen({super.key});
@@ -76,10 +77,11 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<UiProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Site Owner Dashboard'),
+        title: Text(l10n.siteOwnerDashboard),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadBookings),
           IconButton(icon: const Icon(Icons.logout), onPressed: _handleLogout),
@@ -88,19 +90,19 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
           controller: _tabController,
           tabs: [
             Tab(
-              text: 'All (${_allBookings.length})',
+              text: '${l10n.all} (${_allBookings.length})',
               icon: const Icon(Icons.list),
             ),
             Tab(
-              text: 'Pending (${_pendingBookings.length})',
+              text: '${l10n.pending} (${_pendingBookings.length})',
               icon: const Icon(Icons.pending),
             ),
             Tab(
-              text: 'Approved (${_approvedBookings.length})',
+              text: '${l10n.approved} (${_approvedBookings.length})',
               icon: const Icon(Icons.check_circle),
             ),
             Tab(
-              text: 'Rejected (${_rejectedBookings.length})',
+              text: '${l10n.rejected} (${_rejectedBookings.length})',
               icon: const Icon(Icons.cancel),
             ),
           ],
@@ -131,13 +133,14 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
   }
 
   Widget _buildStatsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Expanded(
             child: _buildStatCard(
-              'Total Bookings',
+              l10n.totalBookings,
               _allBookings.length.toString(),
               Icons.book_online,
               Colors.blue,
@@ -146,7 +149,7 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
           const SizedBox(width: 12),
           Expanded(
             child: _buildStatCard(
-              'Pending',
+              l10n.pending,
               _pendingBookings.length.toString(),
               Icons.pending_actions,
               Colors.orange,
@@ -155,7 +158,7 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
           const SizedBox(width: 12),
           Expanded(
             child: _buildStatCard(
-              'Approved',
+              l10n.approved,
               _approvedBookings.length.toString(),
               Icons.check_circle,
               Colors.green,
@@ -202,14 +205,15 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
   }
 
   Widget _buildBookingsList(List<Booking> bookings) {
+    final l10n = AppLocalizations.of(context)!;
     if (bookings.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No bookings found'),
+            const Icon(Icons.inbox, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(l10n.noBookingsFound),
           ],
         ),
       );
@@ -229,6 +233,7 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
   }
 
   Widget _buildBookingCard(Booking booking) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -269,7 +274,7 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Booking ID: ${booking.bookingId}',
+                        '${l10n.bookingId}: ${booking.bookingId}',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
@@ -282,21 +287,21 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
             const SizedBox(height: 16),
 
             // Customer Info
-            _buildInfoRow('Customer', booking.customerName, Icons.person),
-            _buildInfoRow('Email', booking.customerEmail, Icons.email),
-            _buildInfoRow('Phone', booking.customerPhone, Icons.phone),
+            _buildInfoRow(l10n.customer, booking.customerName, Icons.person),
+            _buildInfoRow(l10n.emailAddress, booking.customerEmail, Icons.email),
+            _buildInfoRow(l10n.phoneNumber, booking.customerPhone, Icons.phone),
             _buildInfoRow(
-              'Travel Date',
+              l10n.travelDate,
               _formatDate(booking.travelDate),
               Icons.calendar_today,
             ),
-            _buildInfoRow('People', '${booking.numberOfPeople}', Icons.group),
+            _buildInfoRow(l10n.people, '${booking.numberOfPeople}', Icons.group),
 
             if (booking.specialRequests != null &&
                 booking.specialRequests!.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildInfoRow(
-                'Special Requests',
+                l10n.specialRequests,
                 booking.specialRequests!,
                 Icons.note,
               ),
@@ -313,14 +318,14 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
                       onPressed: () =>
                           _updateBookingStatus(booking, BookingStatus.approved),
                       backgroundColor: Colors.green,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check, color: Colors.white, size: 18),
-                          SizedBox(width: 4),
+                          const Icon(Icons.check, color: Colors.white, size: 18),
+                          const SizedBox(width: 4),
                           Text(
-                            'Approve',
-                            style: TextStyle(color: Colors.white),
+                            l10n.approve,
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
@@ -332,12 +337,12 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
                       onPressed: () =>
                           _updateBookingStatus(booking, BookingStatus.rejected),
                       backgroundColor: Colors.red,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.close, color: Colors.white, size: 18),
-                          SizedBox(width: 4),
-                          Text('Reject', style: TextStyle(color: Colors.white)),
+                          const Icon(Icons.close, color: Colors.white, size: 18),
+                          const SizedBox(width: 4),
+                          Text(l10n.reject, style: const TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
@@ -354,12 +359,12 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
                   child: CustomButton(
                     onPressed: () => _contactCustomer(booking),
                     isOutlined: true,
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.phone, size: 18),
-                        SizedBox(width: 4),
-                        Text('Contact'),
+                        const Icon(Icons.phone, size: 18),
+                        const SizedBox(width: 4),
+                        Text(l10n.contact),
                       ],
                     ),
                   ),
@@ -369,12 +374,12 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
                   child: CustomButton(
                     onPressed: () => _copyContactInfo(booking),
                     isOutlined: true,
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.copy, size: 18),
-                        SizedBox(width: 4),
-                        Text('Copy Info'),
+                        const Icon(Icons.copy, size: 18),
+                        const SizedBox(width: 4),
+                        Text(l10n.copyInfo),
                       ],
                     ),
                   ),
@@ -446,6 +451,7 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
     Booking booking,
     BookingStatus newStatus,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final success = await _dbService.updateBookingStatus(
         booking.id!,
@@ -453,42 +459,43 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
       );
       if (success) {
         _showSuccessSnackBar(
-          'Booking ${newStatus.displayName.toLowerCase()} successfully',
+          '${l10n.booking} ${newStatus.displayName.toLowerCase()} ${l10n.successfully}',
         );
         _loadBookings(); // Refresh the list
       } else {
-        _showErrorSnackBar('Failed to update booking status');
+        _showErrorSnackBar(l10n.failedToUpdateBookingStatus);
       }
     } catch (e) {
-      _showErrorSnackBar('Error updating booking: $e');
+      _showErrorSnackBar('${l10n.errorUpdatingBooking}: $e');
     }
   }
 
   void _contactCustomer(Booking booking) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Contact Customer'),
+        title: Text(l10n.contactCustomer),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Customer: ${booking.customerName}'),
+            Text('${l10n.customer}: ${booking.customerName}'),
             const SizedBox(height: 8),
-            Text('Email: ${booking.customerEmail}'),
+            Text('${l10n.emailAddress}: ${booking.customerEmail}'),
             const SizedBox(height: 8),
-            Text('Phone: ${booking.customerPhone}'),
+            Text('${l10n.phoneNumber}: ${booking.customerPhone}'),
             const SizedBox(height: 16),
-            const Text(
-              'Contact the customer directly using their email or phone number to discuss booking details.',
-              style: TextStyle(fontSize: 14),
+            Text(
+              l10n.contactCustomerDirectly,
+              style: const TextStyle(fontSize: 14),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -496,38 +503,40 @@ class _SiteOwnerDashboardScreenState extends State<SiteOwnerDashboardScreen>
   }
 
   void _copyContactInfo(Booking booking) {
+    final l10n = AppLocalizations.of(context)!;
     final info =
         '''
-Customer: ${booking.customerName}
-Email: ${booking.customerEmail}
-Phone: ${booking.customerPhone}
-Site: ${booking.siteName}
-Travel Date: ${_formatDate(booking.travelDate)}
-People: ${booking.numberOfPeople}
-Booking ID: ${booking.bookingId}
+${l10n.customer}: ${booking.customerName}
+${l10n.emailAddress}: ${booking.customerEmail}
+${l10n.phoneNumber}: ${booking.customerPhone}
+${l10n.site}: ${booking.siteName}
+${l10n.travelDate}: ${_formatDate(booking.travelDate)}
+${l10n.people}: ${booking.numberOfPeople}
+${l10n.bookingId}: ${booking.bookingId}
 ''';
 
     Clipboard.setData(ClipboardData(text: info));
-    _showSuccessSnackBar('Contact information copied to clipboard');
+    _showSuccessSnackBar(l10n.contactInfoCopied);
   }
 
   void _handleLogout() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.signOut),
+        content: Text(l10n.areYouSureLogout),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to login
             },
-            child: const Text('Logout'),
+            child: Text(l10n.signOut),
           ),
         ],
       ),

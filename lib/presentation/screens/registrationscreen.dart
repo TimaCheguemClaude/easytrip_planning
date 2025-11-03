@@ -5,6 +5,7 @@ import 'package:easytrip/presentation/widgets/custom_button.dart';
 import 'package:easytrip/presentation/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -38,6 +39,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(color: Colors.black),
@@ -120,7 +122,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Create Account',
+                        l10n.createAccount,
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               color: Colors.white,
@@ -131,12 +133,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       // Form Fields
                       CustomTextField(
                         controller: _nameController,
-                        labelText: 'Full Name',
+                        labelText: l10n.fullName,
                         prefixIcon: Icons.person,
                         // textColor: Colors.white,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your full name';
+                            return l10n.pleaseEnterName;
                           }
                           return null;
                         },
@@ -144,16 +146,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _emailController,
-                        labelText: 'Email Address',
+                        labelText: l10n.emailAddress,
                         prefixIcon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
                         // textColor: Colors.white,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email address';
+                            return l10n.pleaseEnterEmail;
                           }
                           if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
+                            return l10n.pleaseEnterValidEmail;
                           }
                           return null;
                         },
@@ -161,7 +163,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _passwordController,
-                        labelText: 'Password',
+                        labelText: l10n.password,
                         prefixIcon: Icons.lock,
                         //  textColor: Colors.white,
                         obscureText: _obscurePassword,
@@ -178,7 +180,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a password';
+                            return l10n.pleaseEnterPassword;
                           }
                           return null;
                         },
@@ -186,7 +188,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _confirmPasswordController,
-                        labelText: 'Confirm Password',
+                        labelText: l10n.confirmPassword,
                         prefixIcon: Icons.lock,
                         //  textColor: Colors.white,
                         obscureText: _obscureConfirmPassword,
@@ -204,10 +206,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
+                            return l10n.pleaseConfirmPassword;
                           }
                           if (value != _passwordController.text) {
-                            return 'Passwords do not match';
+                            return l10n.passwordsDoNotMatch;
                           }
                           return null;
                         },
@@ -215,12 +217,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _addressController,
-                        labelText: 'Address',
+                        labelText: l10n.address,
                         prefixIcon: Icons.home,
                         // textColor: Colors.white,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your address';
+                            return l10n.pleaseEnterAddress;
                           }
                           return null;
                         },
@@ -228,13 +230,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _contactController,
-                        labelText: 'Contact Number',
+                        labelText: l10n.phoneNumber,
                         prefixIcon: Icons.phone,
                         //  textColor: Colors.white,
                         keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your contact number';
+                            return l10n.pleaseEnterPhone;
                           }
                           return null;
                         },
@@ -270,9 +272,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   color: Colors.deepOrange,
                                 ),
                               )
-                            : const Text(
-                                'Create Account',
-                                style: TextStyle(
+                            : Text(
+                                l10n.createAccount,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -283,9 +285,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Already have an account? ",
-                            style: TextStyle(color: Colors.white70),
+                          Text(
+                            l10n.alreadyHaveAccount,
+                            style: const TextStyle(color: Colors.white70),
                           ),
                           TextButton(
                             onPressed: () {
@@ -296,9 +298,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ),
                               );
                             },
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.signIn,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),

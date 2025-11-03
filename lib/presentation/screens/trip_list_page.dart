@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/trip_storage.dart';
 import 'trip_detail_page.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class TripListPage extends StatefulWidget {
   const TripListPage({super.key});
@@ -20,8 +21,9 @@ class _TripListPageState extends State<TripListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Trips')),
+      appBar: AppBar(title: Text(l10n.yourTrips)),
       body: FutureBuilder<List<String>>(
         future: _futureTrips,
         builder: (context, snapshot) {
@@ -30,7 +32,7 @@ class _TripListPageState extends State<TripListPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (trips.isEmpty) {
-            return const Center(child: Text('No trips found.'));
+            return Center(child: Text(l10n.noTripsFound));
           }
           return ListView.builder(
             itemCount: trips.length,

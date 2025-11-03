@@ -6,6 +6,7 @@ import 'package:easytrip/presentation/widgets/custom_button.dart';
 import 'package:easytrip/presentation/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(color: Colors.black),
@@ -56,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Please activate your account. Check your email for the activation code.',
+                      l10n.pleaseActivateAccount,
                     ),
                     backgroundColor: Colors.orange,
                     behavior: SnackBarBehavior.floating,
@@ -106,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Welcome Back',
+                          l10n.welcomeBack,
                           style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(
                                 color: Colors.white,
@@ -115,25 +117,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Log in to continue',
+                          l10n.logInToContinue,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(color: Colors.white70),
                         ),
                         const SizedBox(height: 32),
                         CustomTextField(
                           controller: emailController,
-                          labelText: 'Email Address',
+                          labelText: l10n.emailAddress,
                           prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
                           //textColor: Colors.white,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your email address';
+                              return l10n.pleaseEnterEmail;
                             }
                             if (!RegExp(
                               r'^[^@]+@[^@]+\.[^@]+',
                             ).hasMatch(value)) {
-                              return 'Please enter a valid email';
+                              return l10n.pleaseEnterValidEmail;
                             }
                             return null;
                           },
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
                         CustomTextField(
                           controller: passwordController,
-                          labelText: 'Password',
+                          labelText: l10n.password,
                           prefixIcon: Icons.lock,
                           // textColor: Colors.white,
                           obscureText: _obscurePassword,
@@ -160,10 +162,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return l10n.pleaseEnterPassword;
                             }
                             if (value.length < 8) {
-                              return 'Password must be at least 8 characters long';
+                              return l10n.passwordTooShort;
                             }
                             return null;
                           },
@@ -175,9 +177,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               // Navigate to Forgot Password Screen
                             },
-                            child: const Text(
-                              'Forgot Password?',
-                              style: TextStyle(color: Colors.white),
+                            child: Text(
+                              l10n.forgotPasswordLink,
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
@@ -203,9 +205,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(),
                                 )
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
+                              : Text(
+                                  l10n.signIn,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -215,9 +217,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "Don't have an account?",
-                              style: TextStyle(color: Colors.white70),
+                            Text(
+                              l10n.dontHaveAccount,
+                              style: const TextStyle(color: Colors.white70),
                             ),
                             TextButton(
                               onPressed: () {
@@ -229,9 +231,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              child: const Text(
-                                'Register',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.signUpButton,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),

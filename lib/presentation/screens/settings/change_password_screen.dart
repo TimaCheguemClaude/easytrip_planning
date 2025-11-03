@@ -3,6 +3,7 @@ import 'package:easytrip/presentation/widgets/custom_button.dart';
 import 'package:easytrip/presentation/widgets/custom_text_field.dart';
 import 'package:provider/provider.dart';
 import 'package:easytrip/utils/theme.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -31,6 +32,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _savePassword() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -45,8 +47,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password updated successfully'),
+          SnackBar(
+            content: Text(l10n.passwordUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -59,9 +61,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<UiProvider>(context).isDark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Change Password'), elevation: 0),
+      appBar: AppBar(title: Text(l10n.changePassword), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -71,7 +74,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             children: [
               CustomTextField(
                 controller: _oldPasswordController,
-                labelText: 'Old Password',
+                labelText: l10n.oldPassword,
                 prefixIcon: Icons.lock_outline,
                 obscureText: _obscureOldPassword,
                 suffixIcon: IconButton(
@@ -89,7 +92,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your old password';
+                    return l10n.pleaseEnterOldPassword;
                   }
                   return null;
                 },
@@ -97,7 +100,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _newPasswordController,
-                labelText: 'New Password',
+                labelText: l10n.newPassword,
                 prefixIcon: Icons.lock_outline,
                 obscureText: _obscureNewPassword,
                 suffixIcon: IconButton(
@@ -115,13 +118,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
+                    return l10n.pleaseEnterNewPassword;
                   }
                   if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
+                    return l10n.passwordMustBeAtLeast8Characters;
                   }
                   if (value == _oldPasswordController.text) {
-                    return 'New password cannot be the same as old password';
+                    return l10n.newPasswordCannotBeSameAsOld;
                   }
                   return null;
                 },
@@ -129,7 +132,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _confirmPasswordController,
-                labelText: 'Confirm Password',
+                labelText: l10n.confirmPassword,
                 prefixIcon: Icons.lock_outline,
                 obscureText: _obscureConfirmPassword,
                 suffixIcon: IconButton(
@@ -147,10 +150,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please confirm your new password';
+                    return l10n.pleaseConfirmNewPassword;
                   }
                   if (value != _newPasswordController.text) {
-                    return 'Passwords do not match';
+                    return l10n.passwordsDoNotMatch;
                   }
                   return null;
                 },
@@ -170,9 +173,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Save',
-                        style: TextStyle(
+                    : Text(
+                        l10n.save,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

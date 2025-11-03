@@ -1,11 +1,14 @@
 import 'dart:io';
 
-import 'package:easytrip/presentation/screens/chat_bot_screen.dart';
 import 'package:easytrip/presentation/screens/plan_form_page.dart';
 import 'package:easytrip/presentation/screens/user_bookings_screen.dart';
+import 'package:easytrip/presentation/screens/chat_bot_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 import '../../utils/trip_storage.dart';
+import '../../utils/theme.dart';
 import '../widgets/animated_fab.dart';
 import 'trip_detail_page.dart';
 
@@ -29,15 +32,24 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
     });
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage([ThemeData? theme]) {
+    final currentTheme = theme ?? Theme.of(context);
     return Container(
-      width: 56,
-      height: 56,
+      width: 60,
+      height: 60,
       decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(8),
+        color: currentTheme.colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: currentTheme.colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
       ),
-      child: const Icon(Icons.image, color: Colors.grey, size: 32),
+      child: Icon(
+        Icons.image,
+        color: currentTheme.colorScheme.onSurface.withOpacity(0.4),
+        size: 28,
+      ),
     );
   }
 
@@ -47,6 +59,9 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild when tab changes to update colors
+    });
     _futureTrips = _loadTrips();
   }
 
@@ -74,14 +89,6 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
     );
   }
 
-  void _onBuildWithAI() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ChatBotScreen(initialMessage: ''),
-      ),
-    );
-  }
 
   void _onModifyTrip(Map<String, dynamic> trip) {
     // Navigate to TripDetailPage for modification
@@ -92,17 +99,18 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
   }
 
   void _onDeleteTrip(Map<String, dynamic> trip) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Trip'),
+        title: Text(l10n.deleteTrip),
         content: Text(
-          'Are you sure you want to delete "${trip['name']}"? This action cannot be undone.',
+          '${l10n.areYouSureDeleteTrip} "${trip['name']}"? ${l10n.thisActionCannotBeUndone}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -113,10 +121,10 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
                 _futureTrips = _loadTrips();
               });
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Trip "${trip['name']}" deleted.')),
+                SnackBar(content: Text('${l10n.tripDeleted} "${trip['name']}"')),
               );
             },
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -136,6 +144,7 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
   // }
 
   Widget _buildTripCard(Map<String, dynamic> trip) {
+    final l10n = AppLocalizations.of(context)!;
     Widget leadingWidget;
     String? img;
     // Prefer trip['image'], else first valid in trip['images']
@@ -205,45 +214,134 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
     //     child: const Icon(Icons.image, color: Colors.grey, size: 32),
     //   );
     // }
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ListTile(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => TripDetailPage(trip: trip)),
-          );
-        },
-        leading: leadingWidget,
-        title: Text(
-          trip['name'] ?? 'Untitled Trip',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    final theme = Theme.of(context);
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+          width: 1,
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (trip['dateStart'] != null)
-              Text(
-                'Start: ${trip['dateStart'].toString().split('T')[0]}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-              ),
-            if (trip['savedCards'] != null && trip['savedCards'] is List)
-              Text(
-                '${(trip['savedCards'] as List).length} saved places',
-                style: TextStyle(color: Colors.blue[600], fontSize: 12),
-              ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            if (value == 'modify') _onModifyTrip(trip);
-            if (value == 'delete') _onDeleteTrip(trip);
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => TripDetailPage(trip: trip)),
+            );
           },
-          itemBuilder: (context) => [
-            const PopupMenuItem(value: 'modify', child: Text('Modify')),
-            const PopupMenuItem(value: 'delete', child: Text('Delete')),
-          ],
-          icon: const Icon(Icons.more_vert),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: leadingWidget,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        trip['name'] ?? l10n.untitledTrip,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      if (trip['dateStart'] != null)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${l10n.start}: ${trip['dateStart'].toString().split('T')[0]}',
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (trip['savedCards'] != null && trip['savedCards'] is List)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.bookmark,
+                              size: 14,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${(trip['savedCards'] as List).length} ${l10n.savedPlaces}',
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'modify') _onModifyTrip(trip);
+                    if (value == 'delete') _onDeleteTrip(trip);
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'modify',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, color: theme.colorScheme.primary, size: 18),
+                          const SizedBox(width: 8),
+                          Text(l10n.modify, style: TextStyle(color: theme.colorScheme.onSurface)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red, size: 18),
+                          const SizedBox(width: 8),
+                          Text(l10n.delete, style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -251,63 +349,236 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    Provider.of<UiProvider>(context); // ensure rebuild on theme change
+    
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text('Trips & Bookings'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(
-              icon: Icon(Icons.luggage),
-              text: 'My Trips',
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.flight_takeoff,
+              color: theme.colorScheme.onPrimary,
+              size: 24,
             ),
-            Tab(
-              icon: Icon(Icons.book_online),
-              text: 'Bookings',
+            const SizedBox(width: 8),
+            Text(
+              l10n.myTripsAndBookings,
+              style: TextStyle(
+                color: theme.colorScheme.onPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: theme.primaryColor.withOpacity(0.1),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: theme.primaryColor,
+              unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+              tabs: [
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.luggage,
+                        size: 20,
+                        color: _tabController.index == 0 
+                            ? theme.primaryColor 
+                            : theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.myTrips,
+                        style: TextStyle(
+                          color: _tabController.index == 0 
+                              ? theme.primaryColor 
+                              : theme.colorScheme.onSurface.withOpacity(0.6),
+                          fontWeight: _tabController.index == 0 
+                              ? FontWeight.bold 
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.book_online,
+                        size: 20,
+                        color: _tabController.index == 1 
+                            ? theme.primaryColor 
+                            : theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.bookings,
+                        style: TextStyle(
+                          color: _tabController.index == 1 
+                              ? theme.primaryColor 
+                              : theme.colorScheme.onSurface.withOpacity(0.6),
+                          fontWeight: _tabController.index == 1 
+                              ? FontWeight.bold 
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildTripsTab(),
-          const UserBookingsScreen(),
-        ],
+      body: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildTripsTab(),
+            const UserBookingsScreen(),
+          ],
+        ),
       ),
       floatingActionButton: AnimatedFloatingActionButton(
         onCreateTrip: _onCreateTrip,
-        onBuildWithAI: _onBuildWithAI,
+        onChatBot: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ChatBotScreen(initialMessage: ''),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildTripsTab() {
+    final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<List<Map<String, dynamic>>>(
         future: _futureTrips,
         builder: (context, snapshot) {
           final trips = snapshot.data ?? [];
+          final theme = Theme.of(context);
+          
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (trips.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.luggage, size: 64, color: Colors.grey[400]),
+                  CircularProgressIndicator(
+                    color: theme.primaryColor,
+                  ),
                   const SizedBox(height: 16),
                   Text(
-                    'No trips found',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create your first trip or save recommendations to see them here',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    l10n.loadingYourTrips,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      fontSize: 16,
+                    ),
                   ),
                 ],
+              ),
+            );
+          }
+          
+          if (trips.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.flight_takeoff,
+                        size: 48,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      l10n.noTripsYet,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.startPlanningAdventure,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      onPressed: _onCreateTrip,
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.createYourFirstTrip),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: theme.colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -353,55 +624,63 @@ class _TripscreenState extends State<Tripscreen> with RouteAware, SingleTickerPr
             children: [
               // Current trips
               if (current.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Current Trips',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _buildSectionHeader(l10n.currentTrips, Icons.play_circle, theme),
                 ...current.map(_buildTripCard),
               ],
 
               // Upcoming trips
               if (upcoming.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Upcoming Trips',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _buildSectionHeader(l10n.upcomingTrips, Icons.schedule, theme),
                 ...upcoming.map(_buildTripCard),
               ],
 
               // My trips (no date or saved recommendations)
               if (noDate.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'My Trips',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _buildSectionHeader(l10n.myTrips, Icons.luggage, theme),
                 ...noDate.map(_buildTripCard),
               ],
 
               // Past trips
               if (past.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Past Trips',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                _buildSectionHeader(l10n.pastTrips, Icons.history, theme),
                 ...past.map(_buildTripCard),
               ],
             ],
           );
         },
       );
-    
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon, ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: theme.colorScheme.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

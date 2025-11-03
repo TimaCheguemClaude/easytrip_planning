@@ -1,9 +1,9 @@
-import 'package:easytrip/presentation/widgets/custom_button.dart';
 import 'package:easytrip/presentation/widgets/custom_text_field.dart';
 import 'package:easytrip/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 import '../../data/model/touristic_site.dart';
 import '../../data/touristic_sites_dataset.dart';
@@ -29,7 +29,25 @@ class _TripInputDialogState extends State<TripInputDialog> {
   String? _selectedActivity;
 
   final List<String> _cities = TouristicSitesDataset.getAllCitiesIncludingExisting();
-  final List<String> _activities = TouristicSitesDataset.getAllActivitiesIncludingExisting();
+  final List<String> _activities = [
+    'City Tours',
+    'Nature & Wildlife',
+    'Cultural Sites',
+    'Adventure Sports',
+    'Shopping',
+    'Dining',
+    'Nightlife',
+    'Accommodation',
+    'Beach & Water Activities',
+    'Historical Sites',
+    'Art & Museums',
+    'Religious Sites',
+    'Photography',
+    'Wellness & Spa',
+    'Music & Entertainment',
+    'Educational Tours',
+    'Local Experiences',
+  ];
 
   @override
   void dispose() {
@@ -39,57 +57,69 @@ class _TripInputDialogState extends State<TripInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<UiProvider>(context);
-    final isDark = themeProvider.isDark;
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    Provider.of<UiProvider>(context); // ensure rebuild on theme change
 
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
+      elevation: 4,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 600),
+        constraints: const BoxConstraints(maxHeight: 600, maxWidth: 380),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
+            // Minimalist Header
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: themeProvider.primaryBlue,
+                color: theme.colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
+                ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.colorScheme.outline.withOpacity(0.2),
+                    width: 1,
+                  ),
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.smart_toy,
-                    color: Colors.white,
-                    size: 28,
+                  Icon(
+                    Icons.travel_explore,
+                    color: theme.primaryColor,
+                    size: 24,
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Get AI Recommendations',
+                      l10n.aiTripRecommendations,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      size: 20,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Form content
+            // Minimalist Form Content
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -98,7 +128,7 @@ class _TripInputDialogState extends State<TripInputDialog> {
                       // Budget field
                       CustomTextField(
                         controller: _budgetController,
-                        labelText: 'Budget (CFA) *',
+                        labelText: '${l10n.budget} (CFA)',
                         prefixIcon: Icons.attach_money,
                         keyboardType: TextInputType.number,
                         validator: (value) {
@@ -117,15 +147,25 @@ class _TripInputDialogState extends State<TripInputDialog> {
                       // City dropdown
                       DropdownButtonFormField<String>(
                         value: _selectedCity,
-                        decoration: const InputDecoration(
-                          labelText: 'Preferred City *',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.location_city),
+                        decoration: InputDecoration(
+                          labelText: l10n.selectCity,
+                          prefixIcon: Icon(
+                            Icons.location_city,
+                            color: theme.primaryColor,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          filled: true,
+                          fillColor: theme.colorScheme.surface,
                         ),
                         items: _cities.map((city) {
                           return DropdownMenuItem(
                             value: city,
-                            child: Text(city),
+                            child: Text(
+                              city,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -143,98 +183,125 @@ class _TripInputDialogState extends State<TripInputDialog> {
                       const SizedBox(height: 16),
 
                       // Number of people
-                      const Text(
-                        'Number of People *',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Row(
-                              children: [
-                                Icon(Icons.people),
-                                SizedBox(width: 8),
-                                Text('People'),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: _numberOfPeople > 1
-                                      ? () => setState(() => _numberOfPeople--)
-                                      : null,
-                                  icon: const Icon(Icons.remove_circle_outline),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.people,
+                                color: theme.primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${l10n.numberOfPeople}:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: theme.colorScheme.onSurface,
                                 ),
-                                Text(
-                                  '$_numberOfPeople',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: _numberOfPeople > 1
+                                    ? () => setState(() => _numberOfPeople--)
+                                    : null,
+                                icon: Icon(
+                                  Icons.remove_circle_outline,
+                                  color: _numberOfPeople > 1
+                                      ? theme.primaryColor
+                                      : theme.colorScheme.onSurface.withOpacity(0.4),
                                 ),
-                                IconButton(
-                                  onPressed: () => setState(() => _numberOfPeople++),
-                                  icon: const Icon(Icons.add_circle_outline),
+                              ),
+                              Text(
+                                '$_numberOfPeople',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.primaryColor,
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                              IconButton(
+                                onPressed: () => setState(() => _numberOfPeople++),
+                                icon: Icon(
+                                  Icons.add_circle_outline,
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
 
-                      // Activity dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedActivity,
-                        decoration: const InputDecoration(
-                          labelText: 'Preferred Activity *',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.local_activity),
+                      // Activity dropdown - Fixed overflow with constraints
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: double.infinity),
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedActivity,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: l10n.selectActivity,
+                            prefixIcon: Icon(
+                              Icons.local_activity,
+                              color: theme.primaryColor,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: theme.colorScheme.surface,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          items: _activities.map((activity) {
+                            return DropdownMenuItem(
+                              value: activity,
+                              child: Container(
+                                width: double.infinity,
+                                child: Text(
+                                  activity,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedActivity = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select an activity';
+                            }
+                            return null;
+                          },
                         ),
-                        items: _activities.map((activity) {
-                          return DropdownMenuItem(
-                            value: activity,
-                            child: Text(activity),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedActivity = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select an activity';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 24),
 
-                      // Submit button
-                      CustomButton(
-                        onPressed: _submitForm,
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.auto_awesome, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'Get Recommendations',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                      // Minimalist Submit button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: _submitForm,
+                          icon: const Icon(Icons.auto_awesome, size: 20),
+                          label: Text(l10n.generateRecommendations),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ],
+                            elevation: 2,
+                          ),
                         ),
                       ),
                     ],
@@ -247,6 +314,7 @@ class _TripInputDialogState extends State<TripInputDialog> {
       ),
     );
   }
+
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {

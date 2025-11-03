@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 //import 'package:easytrip/utils/theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -36,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _editProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: name);
     final emailController = TextEditingController(text: email);
     File? tempAvatarFile = avatarImageFile;
@@ -45,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: const Text('Edit Profile'),
+              title: Text(l10n.editProfile),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -89,11 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
+                      decoration: InputDecoration(labelText: l10n.name),
                     ),
                     TextField(
                       controller: emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      decoration: InputDecoration(labelText: l10n.emailAddress),
                     ),
                   ],
                 ),
@@ -101,11 +103,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Save'),
+                  child: Text(l10n.save),
                 ),
               ],
             );
@@ -135,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Profile updated!')));
+      ).showSnackBar(SnackBar(content: Text(l10n.profileUpdated)));
     }
   }
 
@@ -154,19 +156,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _logout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text(l10n.signOut),
+        content: Text(l10n.areYouSureLogout),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
+            child: Text(l10n.signOut),
           ),
         ],
       ),
@@ -183,12 +186,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -275,28 +279,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   _ProfileActionCard(
                     icon: Icons.person_outline,
-                    label: 'Edit Profile',
+                    label: l10n.editProfile,
                     onTap: _editProfile,
                     color: theme.primaryColor,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.card_travel,
-                    label: 'My Trips',
+                    label: l10n.myTrips,
                     onTap: _openTrips,
                     color: theme.colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.settings,
-                    label: 'Settings',
+                    label: l10n.settingsTab,
                     onTap: _openSettings,
-                    color: theme.colorScheme.tertiary ?? Colors.teal,
+                    color: theme.colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.logout,
-                    label: 'Logout',
+                    label: l10n.signOut,
                     onTap: _logout,
                     color: Colors.redAccent,
                   ),

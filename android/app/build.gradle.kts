@@ -10,6 +10,7 @@ android {
     compileSdk = flutter.compileSdkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -35,6 +36,12 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
+    }
+
+    dependencies {
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") // Updated from 2.0.4 to 2.1.4
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10")
+        implementation("androidx.multidex:multidex:2.0.1") // Add this if you have multidex issues
     }
 }
 

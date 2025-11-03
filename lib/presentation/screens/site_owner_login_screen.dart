@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import 'site_owner_dashboard_screen.dart';
@@ -25,6 +26,14 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
   static String _mockPassword = 'admin123';
 
   @override
+  void initState() {
+    super.initState();
+    // Auto-fill with demo credentials
+    _emailController.text = _mockEmail;
+    _passwordController.text = _mockPassword;
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -34,11 +43,11 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<UiProvider>(context);
-    final isDark = themeProvider.isDark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Site Owner Login'),
+        title: Text(l10n.siteOwnerLogin),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -68,7 +77,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
 
               // Title
               Text(
-                'Welcome Back',
+                l10n.welcomeBack,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -78,7 +87,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
               const SizedBox(height: 8),
 
               Text(
-                'Manage your touristic site bookings',
+                l10n.manageBookings,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.grey[600],
                 ),
@@ -94,15 +103,15 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                   children: [
                     CustomTextField(
                       controller: _emailController,
-                      labelText: 'Email Address',
+                      labelText: l10n.emailAddress,
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your email';
+                          return l10n.pleaseEnterEmail;
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Please enter a valid email';
+                          return l10n.pleaseEnterValidEmail;
                         }
                         return null;
                       },
@@ -112,7 +121,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
 
                     CustomTextField(
                       controller: _passwordController,
-                      labelText: 'Password',
+                      labelText: l10n.password,
                       prefixIcon: Icons.lock_outline,
                       obscureText: _obscurePassword,
                       suffixIcon: IconButton(
@@ -127,10 +136,10 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your password';
+                          return l10n.pleaseEnterPassword;
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return l10n.passwordTooShort;
                         }
                         return null;
                       },
@@ -142,7 +151,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                     CustomButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       child: _isLoading
-                          ? const Row(
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
@@ -155,7 +164,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                                 ),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Signing In...',
+                                  l10n.loading,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -164,8 +173,8 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                                 ),
                               ],
                             )
-                          : const Text(
-                              'Sign In',
+                          : Text(
+                              l10n.signIn,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -177,56 +186,6 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // Demo Credentials Info
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.blue.withOpacity(0.3),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.blue[700],
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Demo Credentials',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Email: $_mockEmail',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        color: Colors.blue[600],
-                      ),
-                    ),
-                    Text(
-                      'Password: $_mockPassword',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        color: Colors.blue[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -267,7 +226,7 @@ class _SiteOwnerLoginScreenState extends State<SiteOwnerLoginScreen> {
         _isLoading = false;
       });
 
-      _showErrorSnackBar('Invalid email or password');
+      _showErrorSnackBar(AppLocalizations.of(context)!.invalidCredentials);
     }
   }
 

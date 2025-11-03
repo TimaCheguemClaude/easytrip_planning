@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../data/model/booking.dart';
+import 'notification_storage.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
@@ -41,18 +42,26 @@ class NotificationService {
     final androidPlugin = _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
-      await androidPlugin.requestNotificationsPermission();
-      await androidPlugin.requestExactAlarmsPermission();
+      // Check if permissions are already granted before requesting
+      final granted = await androidPlugin.areNotificationsEnabled();
+      if (granted == false) {
+        await androidPlugin.requestNotificationsPermission();
+        await androidPlugin.requestExactAlarmsPermission();
+      }
     }
 
     final iosPlugin = _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
 
     if (iosPlugin != null) {
-      await iosPlugin.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      // Check if permissions are already granted before requesting
+      final granted = await iosPlugin.checkPermissions();
+      if (granted != null && !granted.isEnabled) {
+        await iosPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
     }
   }
 
@@ -126,6 +135,20 @@ class NotificationService {
       );
 
       log('✅ Notification sent successfully for booking ${booking.bookingId}', name: 'NotificationService');
+
+      // Save notification to storage
+      await NotificationStorage.saveNotification(NotificationItem(
+        id: 'booking_${booking.id}_${DateTime.now().millisecondsSinceEpoch}',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        type: 'booking',
+        data: {
+          'bookingId': booking.bookingId,
+          'siteName': booking.siteName,
+          'status': booking.status.name,
+        },
+      ));
 
       // Also show a test notification to verify the system works
       await showTestNotification();
@@ -229,6 +252,16 @@ class NotificationService {
         notificationDetails,
         payload: payload,
       );
+
+      // Save notification to storage
+      await NotificationStorage.saveNotification(NotificationItem(
+        id: 'general_${DateTime.now().millisecondsSinceEpoch}',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        type: 'general',
+        data: payload != null ? {'payload': payload} : null,
+      ));
 
       log('General notification sent: $title', name: 'NotificationService');
     } catch (e) {

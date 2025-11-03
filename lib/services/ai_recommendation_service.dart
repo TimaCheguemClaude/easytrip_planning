@@ -81,7 +81,7 @@ class AIRecommendationService {
     final datasetJson = dataset.map((site) => site.toMap()).toList();
 
     return '''
-You are EasyTrip's AI recommendation engine. Based on the user's preferences and the provided dataset, recommend EXACTLY 3 touristic sites.
+You are EasyTrip's AI recommendation engine. Based on the user's preferences and the provided dataset, recommend EXACTLY 7 touristic sites.
 
 User Preferences:
 - Budget: ${preferences.budget} CFA
@@ -97,7 +97,7 @@ IMPORTANT RULES:
 2. Consider the user's budget (price per person should fit within budget)
 3. Prioritize sites in the requested city, but can suggest nearby cities if needed
 4. Match the preferred activity when possible
-5. Return EXACTLY 3 recommendations
+5. Return EXACTLY 7 recommendations
 6. Response must be valid JSON format
 
 Required JSON format:
@@ -137,7 +137,7 @@ Respond with ONLY the JSON, no additional text.
 
       final recommendations = recommendationsJson
           .map((rec) => Recommendation.fromMap(rec))
-          .take(3)
+          .take(7)
           .toList();
 
       log(
@@ -175,12 +175,12 @@ Respond with ONLY the JSON, no additional text.
     if (filteredSites.isEmpty) {
       // If no matches, return budget-friendly options
       filteredSites.addAll(
-        sites.where((site) => site.price <= preferences.budget).take(3),
+        sites.where((site) => site.price <= preferences.budget).take(7),
       );
     }
 
     final recommendations = filteredSites
-        .take(3)
+        .take(7)
         .map(
           (site) => Recommendation(
             title: site.title,

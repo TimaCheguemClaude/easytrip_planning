@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'settings/settingscreen.dart';
 import 'loginscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class Profilescreen extends StatefulWidget {
   const Profilescreen({super.key});
@@ -46,6 +47,7 @@ class _ProfilescreenState extends State<Profilescreen> {
   }
 
   Future<void> _editProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: name);
     final emailController = TextEditingController(text: email);
     File? tempAvatarFile = avatarImageFile;
@@ -55,7 +57,7 @@ class _ProfilescreenState extends State<Profilescreen> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: const Text('Edit Profile'),
+              title: Text(l10n.edit),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -96,10 +98,10 @@ class _ProfilescreenState extends State<Profilescreen> {
                             backgroundColor: Theme.of(
                               context,
                             ).colorScheme.primary,
-                            child: const Icon(
+                            child: Icon(
                               Icons.camera_alt,
                               size: 16,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -108,11 +110,11 @@ class _ProfilescreenState extends State<Profilescreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
+                      decoration: InputDecoration(labelText: l10n.fullName),
                     ),
                     TextField(
                       controller: emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
+                      decoration: InputDecoration(labelText: l10n.emailAddress),
                     ),
                   ],
                 ),
@@ -120,11 +122,11 @@ class _ProfilescreenState extends State<Profilescreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Save'),
+                  child: Text(l10n.save),
                 ),
               ],
             );
@@ -149,7 +151,7 @@ class _ProfilescreenState extends State<Profilescreen> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Profile updated!')));
+      ).showSnackBar(SnackBar(content: Text(l10n.savedSuccessfully)));
     }
   }
 
@@ -168,19 +170,20 @@ class _ProfilescreenState extends State<Profilescreen> {
   }
 
   void _logout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text(l10n.signOut),
+        content: Text('Are you sure you want to log out?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
+            child: Text(l10n.signOut),
           ),
         ],
       ),
@@ -197,12 +200,13 @@ class _ProfilescreenState extends State<Profilescreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -257,7 +261,7 @@ class _ProfilescreenState extends State<Profilescreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: theme.colorScheme.onSurface.withOpacity(0.1),
                                   blurRadius: 4,
                                 ),
                               ],
@@ -298,28 +302,28 @@ class _ProfilescreenState extends State<Profilescreen> {
                 children: [
                   _ProfileActionCard(
                     icon: Icons.person_outline,
-                    label: 'Edit Profile',
+                    label: l10n.edit,
                     onTap: _editProfile,
                     color: theme.primaryColor,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.card_travel,
-                    label: 'My Trips',
+                    label: l10n.trips,
                     onTap: _openTrips,
                     color: theme.colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.settings,
-                    label: 'Settings',
+                    label: l10n.settingsTab,
                     onTap: _openSettings,
                     color: theme.colorScheme.tertiary,
                   ),
                   const SizedBox(height: 16),
                   _ProfileActionCard(
                     icon: Icons.logout,
-                    label: 'Logout',
+                    label: l10n.signOut,
                     onTap: _logout,
                     color: Colors.redAccent,
                   ),

@@ -100,7 +100,7 @@ class TouristicSitesDataset {
       city: 'Douala',
       activities: ['Museum Tours', 'Cultural Learning', 'Photography', 'History'],
       price: 15000,
-      image: 'assets/boatdla.jpg',
+      image: 'assets/default.jpg',
       description: 'Discover the rich maritime history of Douala, Cameroon\'s economic capital.',
     ),
     TouristicSite(
@@ -108,7 +108,7 @@ class TouristicSitesDataset {
       city: 'Douala',
       activities: ['Boat Tours', 'Sightseeing', 'Photography', 'Relaxation'],
       price: 25000,
-      image: 'assets/boatdla.jpg',
+      image: 'assets/default.jpg',
       description: 'Enjoy a scenic cruise along the Wouri River with stunning views.',
     ),
     TouristicSite(
@@ -116,7 +116,7 @@ class TouristicSitesDataset {
       city: 'Kribi',
       activities: ['Waterfall Viewing', 'Swimming', 'Photography', 'Nature Walks'],
       price: 10000,
-      image: 'assets/chutelobekribi.jpg',
+      image: 'assets/dataset/kribi/activities/chutelobekribi.jpg',
       description: 'Spectacular waterfalls that flow directly into the Atlantic Ocean.',
     ),
     TouristicSite(
@@ -124,7 +124,7 @@ class TouristicSitesDataset {
       city: 'Yaounde',
       activities: ['Museum Tours', 'Cultural Learning', 'Art Viewing', 'History'],
       price: 12000,
-      image: 'assets/motoryde.jpg',
+      image: 'assets/default.jpg',
       description: 'Explore Cameroon\'s rich cultural heritage through artifacts and art.',
     ),
     TouristicSite(
@@ -132,7 +132,7 @@ class TouristicSitesDataset {
       city: 'Kribi',
       activities: ['Beach Relaxation', 'Swimming', 'Water Sports', 'Sunbathing'],
       price: 45000,
-      image: 'assets/hotelkribi.jpg',
+      image: 'assets/dataset/kribi/hotels/hotelkribi.jpg',
       description: 'Pristine beachfront resort with white sandy beaches.',
     ),
   ];

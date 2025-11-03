@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class ComplainPage extends StatefulWidget {
   const ComplainPage({super.key});
@@ -32,9 +33,10 @@ class _ComplainPageState extends State<ComplainPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complain'),
+        title: Text(l10n.complain),
         backgroundColor: theme.primaryColor,
       ),
       body: Padding(
@@ -45,7 +47,7 @@ class _ComplainPageState extends State<ComplainPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Submit a Complain',
+                l10n.submitComplain,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -54,13 +56,13 @@ class _ComplainPageState extends State<ComplainPage> {
               TextFormField(
                 controller: _controller,
                 maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: 'Your complain',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.yourComplain,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your complain.';
+                    return l10n.pleaseEnterComplain;
                   }
                   return null;
                 },
@@ -78,7 +80,7 @@ class _ComplainPageState extends State<ComplainPage> {
                           ),
                         )
                       : const Icon(Icons.send),
-                  label: Text(_submitting ? 'Submitting...' : 'Submit'),
+                  label: Text(_submitting ? l10n.submitting : l10n.submit),
                   onPressed: _submitting ? null : _submitComplain,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.primaryColor,

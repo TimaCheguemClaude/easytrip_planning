@@ -46,7 +46,7 @@ class _TripDetailPageState extends State<TripDetailPage> {
                     key: _itineraryKey,
                     tripName: widget.trip['name'] ?? '',
                   ),
-                  TripForYouPage(),
+                  TripForYouPage(trip: widget.trip),
                   TripWalletPage(trip: widget.trip),
                 ],
               ),

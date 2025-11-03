@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../widgets/popular_destinations_carousel.dart';
 import '../widgets/explore_category_bar.dart';
 import '../widgets/explore_feed_grid.dart';
+import 'package:easytrip/l10n/app_localizations.dart';
 
 class ExploreCityPage extends StatefulWidget {
   final String cityName;
@@ -43,9 +44,10 @@ class _ExploreCityPageState extends State<ExploreCityPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Explore "${widget.cityName}"'),
+        title: Text('${l10n.explore} "${widget.cityName}"'),
         elevation: 2,
       ),
       body: Column(
